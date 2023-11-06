@@ -1,7 +1,7 @@
 /// <reference types="mle-js" />
 
 /**
- * Stub interface, for demostration purpose only, should be fleshed out to 
+ * Stub interfaces, for demostration purpose only, should be fleshed out to 
  * reflect all data as per Example 4-3 in chapter 4 of the JSON Developer's
  * Guide
  */
@@ -93,26 +93,26 @@ export function processPurchaseOrder(poNumber: IPurchaseOrder["PONumber"]): void
         FROM
             j_purchaseorder po
         WHERE
-            po.po_document.ponumber = :1`,
+            po.po_document.PONumber = :1`,
         [ poNumber ]
     );
 
     // ensure the PO exists
-    if (result.rows === undefined) {
+    if (result.rows === undefined || result.rows.length === 0) {
         throw new Error(`could not find Purchase Order ${poNumber}`);
     }
     
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     let myPO = result.rows[0].PO as IPurchaseOrder;
     
-
     // make sure the PO is valid
     if (! validatePO(myPO)) {
         throw new Error(`Purchase Order ${poNumber} failed validation`);
     }
 
-    // do some fancy processing with the PO ... then:
-    // indicate when the last operation happened
+    // do some (imaginary) fancy processing with the PO ... 
+    
+    // ... then: indicate when the last operation happened
     myPO = setLastUpdatedDate(myPO, "");
 
     result = session.execute(
