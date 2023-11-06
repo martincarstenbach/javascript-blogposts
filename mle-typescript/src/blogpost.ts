@@ -85,7 +85,7 @@ function validatePO(purchaseOrder: IPurchaseOrder): boolean {
  * timestamp alongside
  * @param {number} poNumber - the PONumber as stored in j_purchaseorder.po_document.PONumber 
  */
-export function processPurchaseOrder(poNumber: IPurchaseOrder["PONumber"]) {
+export function processPurchaseOrder(poNumber: IPurchaseOrder["PONumber"]): void {
 
     let result = session.execute(
         `SELECT
