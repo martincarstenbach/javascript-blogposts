@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog 
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:n0="http://www.oracle.com/xml/ns/dbchangelog-ext" 
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+						http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+	<changeSet
+		id="mcb002" 
+		author="martincarstenbach"
+		failOnError="true"
+		runOnChange="false"
+		runAlways="false">
+			<n0:createOracleFunction objectName="HELLO" objectType="FUNCTION" ownerName="EMILY"  replaceIfExists="false" >
+				<n0:source><![CDATA[
+create function if not exists hello(
+	p_who varchar2
+)
+return varchar2 as
+	mle module demo_module
+	signature 'hello';
+/
+]]>
+				</n0:source>
+			</n0:createOracleFunction>
+	</changeSet>
+</databaseChangeLog>

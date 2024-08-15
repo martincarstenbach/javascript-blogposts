@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:n0="http://www.oracle.com/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+   <changeSet
+    id="mcb001"
+    author="martincarstenbach"
+    failOnError="true"
+		runOnChange="false"
+		runAlways="false">
+        <n0:runOracleScript objectName="example-module" ownerName="EMILY" sourceType="STRING">
+            <n0:source><![CDATA[
+
+-- it is possible to add directives to the script
+set define off
+set verify off
+
+-- and comments
+create mle module if not exists demo_module language javascript as
+
+/**
+ * A simple function returning a string with a nice greeting
+ * @param {string} who who do you want to greet?
+ * @returns {string} the completed greeting
+ */
+export function hello(who) {
+    return `hello, ${who}`;
+}
+/
+]]>
+            </n0:source>
+        </n0:runOracleScript>
+    </changeSet>
+</databaseChangeLog>
