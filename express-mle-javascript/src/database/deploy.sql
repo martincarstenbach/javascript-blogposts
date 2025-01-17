@@ -1,6 +1,7 @@
-
--- start by defining the MLE module. Requires a recent SQLcl release
-mle create-module -filename mle-server-side-code.mjs -module-name demo_module -replace
+-- A table is required to store messages.
+-- This script requires a recent SQLcl release and a connection to an Oracle Database
+-- 23ai [Free] > 23.5 for aarch64 Linux or x86-64. The project's readme shows you one
+-- possible way of deploying this script
 
 create table if not exists demo_table (
     id number generated always as identity,
@@ -10,7 +11,15 @@ create table if not exists demo_table (
 )
 /
 
-create or replace procedure process_data(p_data json)
+-- The remainder of this script deals with the definition of server-side JavaScript
+-- Start by defining the MLE module using SQLcl's "mle create-module" command
+
+mle create-module -filename mle-server-side-code.mjs -module-name demo_module -replace
+
+-- Before you can use server-side JavaScript you have to create call specifications
+-- Please refer to the Oracle JavaScript Developer's Guide, chapter 5 for details.
+
+create or replace procedure process_data(p_message varchar2)
     as mle module demo_module
     signature 'processData';
 /
@@ -25,4 +34,10 @@ create or replace function get_message_by_id(p_id number)
     return json
     as mle module demo_module
     signature 'getMessageById';
+/
+
+create or replace function get_messages
+    return json
+    as mle module demo_module
+    signature 'getMessages';
 /
