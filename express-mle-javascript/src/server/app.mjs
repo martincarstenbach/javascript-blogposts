@@ -170,7 +170,7 @@ app.delete(`${prefix}/:id`, async (req, res, next) => {
 		if (result.outBinds?.success === true) {
 			res.send({
 				status: "success",
-				details: "message successfully inserted",
+				details: "message successfully deleted",
 			});
 
 			return;
@@ -178,7 +178,7 @@ app.delete(`${prefix}/:id`, async (req, res, next) => {
 
 		res.send({
 			status: "error",
-			details: "an unknown database error prevented the insert",
+			details: `it was not possible to delete message ${id}, it may not exist`,
 		});
 	} catch (error) {
 		next(error);
