@@ -93,7 +93,7 @@ app.post(prefix, async (req, res, next) => {
 		const connection = await db.getConnection();
 
 		const result = await connection.execute(
-			"begin process_data(:message, :success); end;",
+			"begin process_data(:message, :success, :insertedId); end;",
 			{
 				message: {
 					dir: oracledb.BIND_IN,
@@ -104,15 +104,22 @@ app.post(prefix, async (req, res, next) => {
 					dir: oracledb.BIND_OUT,
 					type: oracledb.DB_TYPE_BOOLEAN,
 				},
+				insertedId: {
+					dir: oracledb.BIND_OUT,
+					type: oracledb.NUMBER,
+				},
 			},
 		);
 
 		// it's only safe to report success if the database reported it
 		if (result.outBinds?.success === true) {
-			res.send({
+			const status = {
 				status: "success",
 				details: "message successfully inserted",
-			});
+				messageId: result.outBinds?.insertedId,
+			};
+
+			res.send(status);
 
 			return;
 		}

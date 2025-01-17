@@ -8,15 +8,27 @@
  *
  * @param {object} data the request body as provided by node-express
  * @param {boolean} success an OUT variable indicating success or failure
+ * @param {number} insertedId returns the message's ID
  */
-export function processData(message, success) {
+export function processData(message, success, insertedId) {
 	const result = session.execute(
 		`insert into demo_table(
 			message
 		) values (
 			:message
-		)`,
-		[message],
+		)
+		returning id into :id`,
+		{
+			message: {
+				dir: oracledb.BIND_IN,
+				val: message,
+				type: oracledb.STRING,
+			},
+			id: {
+				dir: oracledb.BIND_OUT,
+				type: oracledb.NUMBER,
+			},
+		},
 	);
 
 	// success is defined as an OUT variable in the call spec (deploy.sql)
@@ -26,6 +38,7 @@ export function processData(message, success) {
 
 	// biome-ignore lint/complexity/noUselessTernary: type cast needed for MLE
 	success.value = result.rowsAffected === 1 ? true : false;
+	insertedId.value = result.outBinds.id[0];
 }
 
 /**

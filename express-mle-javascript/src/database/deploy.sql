@@ -23,10 +23,11 @@ mle create-module -filename mle-server-side-code.mjs -module-name demo_module -r
 
 create or replace procedure process_data(
         p_message in varchar2,
-        p_success out boolean
+        p_success out boolean,
+        p_inserted_id out number
     )
     as mle module demo_module
-    signature 'processData(string, Out<boolean>)';
+    signature 'processData(string, Out<boolean>, Out<number>)';
 /
 
 create or replace function get_db_details

@@ -1,7 +1,7 @@
 import mocha from "mocha";
 import { assert } from "chai";
 
-let lastMessageIndex;
+let lastMessageId;
 
 describe("All Unit Tests", () => {
 	describe("Session Info tests", () => {
@@ -36,6 +36,8 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
+
+			lastMessageId = data.messageId;
 
 			assert.equal(
 				data.status,
@@ -78,8 +80,10 @@ describe("All Unit Tests", () => {
 		});
 	});
 	describe("Retrieval of a single messages", () => {
-		it("should retrieve the first message posted from the database", async () => {
-			const response = await fetch("http://localhost:3000/api/messages/1");
+		it("should retrieve the last message posted from the database", async () => {
+			const response = await fetch(
+				`http://localhost:3000/api/messages/${lastMessageId}`,
+			);
 
 			if (!response.ok) {
 				throw new Error(`Fetch error; response status: ${response.status}`);
@@ -91,9 +95,12 @@ describe("All Unit Tests", () => {
 	});
 	describe("Deleting messages", () => {
 		it("should delete the first message", async () => {
-			const response = await fetch("http://localhost:3000/api/messages/1", {
-				method: "DELETE",
-			});
+			const response = await fetch(
+				`http://localhost:3000/api/messages/${lastMessageId}`,
+				{
+					method: "DELETE",
+				},
+			);
 
 			if (!response.ok) {
 				throw new Error(`Fetch error; response status: ${response.status}`);
