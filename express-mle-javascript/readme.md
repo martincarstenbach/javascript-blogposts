@@ -4,7 +4,7 @@ Example how to use node-[express](https://expressjs.com/) with MLE/JavaScript.
 
 **NOTE** you are probably better off using Oracle REST Data Services ([ORDS](https://www.oracle.com/ords)) instead of express. ORDS provides a lot more than express out of the box including, but not limited to, authorisation and authentication.
 
-## Database Setup
+## Database Setup and Configuration
 
 You require an Oracle Database (Free) instance. The easiest way to create one is to use a container image. This example features [Gerald Venzl's image](https://hub.docker.com/r/gvenzl/oracle-free) Make sure not to use the `-slim` image flavours, these don't come with Multilingual Engine/MLE.
 
@@ -113,7 +113,7 @@ The easiest way to do that is via [SQLcl](https://www.oracle.com/database/sqldev
 
 This concludes the database setup.
 
-## Code deployment
+### Code deployment
 
 Connect as the newly created user and run the `deploy.sql` script:
 
@@ -155,25 +155,63 @@ npm run dev
 Test the application by querying session info:
 
 ```sh
-curl http://localhost:3000/api/info
+curl --silent http://localhost:3000/api/info | jq
 ```
 
 You can post a message to the database:
 
 ```sh
-curl -X POST -H "Content-Type: application/json" \
--d '{"message": "this message has been provided via curl"}' \
+curl --silent --json '{ "message": "this message has been provided via curl" }' \
 http://localhost:3000/api/messages/
 ```
 
 Retrieve messages from the database:
 
 ```sh
-curl http://localhost:3000/api/messages
+curl --silent http://localhost:3000/api/messages | jq
 ```
 
-You can also get specific messages by their ID:
+You can also get specific messages by their ID. Here's how to retrieve the last message inserted:
 
 ```sh
-curl http://localhost:3000/api/messages/1
+lastMessage=$(curl --silent http://localhost:3000/api/messages | jq 'map(.ID) | max')
+
+curl --silent http://localhost:3000/api/messages/${lastMessage:-1} | jq
+```
+
+And finally, you can delete messages, too
+
+```sh
+lastMessage=$(curl --silent http://localhost:3000/api/messages | jq 'map(.ID) | max')
+
+curl --request DELETE --silent http://localhost:3000/api/messages/${lastMessage:-1}
+```
+
+To test if these operations are available, you can run the unit test suite:
+
+```
+npm run test
+
+> test
+> npx mocha ./test
+
+  All Unit Tests
+    Session Info tests
+      ✔ should print session info (105ms)
+    Posting a message
+      ✔ should post a message to the database successfully (39ms)
+      ✔ should fail posting a message to the database
+    Retrieval of all messages
+      ✔ should retrieve one or more messages from the database
+    Retrieval of a single message
+      ✔ should retrieve the last message posted from the database
+      ✔ should fail to retrieve a message due to an invalid parameter type
+      ✔ should fail to retrieve a message due to a negative ID
+    Deleting messages
+      ✔ should delete the last message inserted
+      ✔ should fail to delete a message due to an invalid parameter type
+      ✔ should fail to delete a message due to a negative ID
+
+
+  10 passing (304ms)
 ```
