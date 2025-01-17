@@ -1,0 +1,29 @@
+{
+    "formatter": {
+      "enabled": true,
+      "formatWithErrors": false,
+      "ignore": [],
+      "attributePosition": "auto",
+      "indentStyle": "tab",
+      "indentWidth": 4,
+      "lineWidth": 120,
+      "lineEnding": "lf"
+    },
+    "javascript": {
+      "formatter": {
+        "arrowParentheses":"always",
+        "bracketSameLine": true,
+        "bracketSpacing": true,
+        "jsxQuoteStyle": "double",
+        "quoteProperties": "asNeeded",
+        "semicolons": "always",
+        "trailingCommas": "all",
+        "quoteStyle": "double"
+      }
+    },
+    "json": {
+      "formatter": {
+        "trailingCommas": "none"
+      }
+    }
+  }
