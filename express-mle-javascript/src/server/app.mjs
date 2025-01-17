@@ -32,7 +32,7 @@ app.get("/api/info", async (_req, res, next) => {
 /**
  * Get all messages
  */
-app.get(`${prefix}`, async (_req, res, next) => {
+app.get(prefix, async (_req, res, next) => {
 	try {
 		const connection = await db.getConnection();
 
@@ -53,7 +53,7 @@ app.get(`${prefix}/:id`, async (req, res, next) => {
 	// cannot perform a lookup on anything other than the PK
 	// the PK column is numeric, hence this code must ensure
 	// a numeric value is passed
-	// biome-ignore lint/suspicious/noGlobalIsNan: coercion to number is acceptable
+	// biome-ignore lint/suspicious/noGlobalIsNan: type coercion to number is acceptable
 	if (isNaN(id)) {
 		res.send({
 			status: "error",
@@ -77,14 +77,14 @@ app.get(`${prefix}/:id`, async (req, res, next) => {
 });
 
 /**
- * Pass the entire request body to MLE/JavaScript
+ * Post (insert) a new message
  */
-app.post(`${prefix}`, async (req, res, next) => {
+app.post(prefix, async (req, res, next) => {
 	const message = req.body.message;
 	if (message === undefined || message.length === 0) {
 		res.send({
 			status: "error",
-			details: "please provide a valid mesage-see readme for details",
+			details: "please provide a valid message-see readme for details",
 		});
 		return;
 	}
@@ -92,11 +92,86 @@ app.post(`${prefix}`, async (req, res, next) => {
 	try {
 		const connection = await db.getConnection();
 
-		await connection.execute("begin process_data(:message); end;", [message]);
+		const result = await connection.execute(
+			"begin process_data(:message, :success); end;",
+			{
+				message: {
+					dir: oracledb.BIND_IN,
+					val: message,
+					type: oracledb.DB_TYPE_STRING,
+				},
+				success: {
+					dir: oracledb.BIND_OUT,
+					type: oracledb.DB_TYPE_BOOLEAN,
+				},
+			},
+		);
+
+		// it's only safe to report success if the database reported it
+		if (result.outBinds?.success === true) {
+			res.send({
+				status: "success",
+				details: "message successfully inserted",
+			});
+
+			return;
+		}
 
 		res.send({
-			status: "success",
-			details: "message successfully inserted",
+			status: "error",
+			details: "an unknown database error prevented the insert",
+		});
+	} catch (error) {
+		next(error);
+	}
+});
+
+app.delete(`${prefix}/:id`, async (req, res, next) => {
+	const id = Number(req.params.id);
+
+	// cannot perform a lookup on anything other than the PK
+	// the PK column is numeric, hence this code must ensure
+	// a numeric value is passed
+	// biome-ignore lint/suspicious/noGlobalIsNan: coercion to number is acceptable
+	if (isNaN(id)) {
+		res.send({
+			status: "error",
+			details: "please provide a valid number",
+		});
+		return;
+	}
+
+	try {
+		const connection = await db.getConnection();
+
+		const result = await connection.execute(
+			"begin delete_message(:id, :success); end;",
+			{
+				id: {
+					dir: oracledb.BIND_IN,
+					val: id,
+					type: oracledb.NUMBER,
+				},
+				success: {
+					dir: oracledb.BIND_OUT,
+					type: oracledb.DB_TYPE_BOOLEAN,
+				},
+			},
+		);
+
+		// it's only safe to report success if the database reported it
+		if (result.outBinds?.success === true) {
+			res.send({
+				status: "success",
+				details: "message successfully inserted",
+			});
+
+			return;
+		}
+
+		res.send({
+			status: "error",
+			details: "an unknown database error prevented the insert",
 		});
 	} catch (error) {
 		next(error);

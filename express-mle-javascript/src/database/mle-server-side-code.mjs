@@ -1,10 +1,16 @@
 /**
- * Example demonstrating how to process objects in MLE/JavaScript
+ * Example demonstrating how to process objects in MLE/JavaScript. A
+ * message is passed via express. An OUT variable (success) is populated
+ * based on the success of the operation. It should always return true,
+ * except for cases where the insert fails (no further storage etc). Those
+ * conditions however are reported back via exceptions, caught in the express
+ * app
  *
  * @param {object} data the request body as provided by node-express
+ * @param {boolean} success an OUT variable indicating success or failure
  */
-export function processData(message) {
-	session.execute(
+export function processData(message, success) {
+	const result = session.execute(
 		`insert into demo_table(
 			message
 		) values (
@@ -12,6 +18,14 @@ export function processData(message) {
 		)`,
 		[message],
 	);
+
+	// success is defined as an OUT variable in the call spec (deploy.sql)
+	// to change the value of an OUT variable, the Out<> interface is required
+	// and you use the object.value property to update the bind variable. See
+	// Oracle JavaScript Developer's Guide, chapter 5 for details.
+
+	// biome-ignore lint/complexity/noUselessTernary: type cast needed for MLE
+	success.value = result.rowsAffected === 1 ? true : false;
 }
 
 /**
@@ -48,6 +62,7 @@ export function getDbDetails() {
 export function getMessages() {
 	const result = session.execute(
 		`select
+			id,
             message,
             ts
         from
@@ -68,12 +83,14 @@ export function getMessages() {
  * @returns the message as the single element in an array, or an empty array if there is none
  */
 export function getMessageById(id) {
-	if (Number.isNaN(id)) {
+	// biome-ignore lint/suspicious/noGlobalIsNan: coercion to number is acceptable
+	if (isNaN(id)) {
 		throw new Error("please provide a numeric ID");
 	}
 
 	const result = session.execute(
 		`select
+			id,
             message,
             ts
         from
@@ -88,4 +105,30 @@ export function getMessageById(id) {
 	}
 
 	return result.rows;
+}
+
+/**
+ * Delete a message from demo_table. Success will be true if a messages was
+ * deleted, in case of a _no data found_ situation an appropriate status
+ * message is returned
+ *
+ * @param {number} id the ID of the message to be deleted
+ * @param {boolean} success an OUT variable indicating success or failure
+ */
+export function deleteMessage(id, success) {
+	// biome-ignore lint/suspicious/noGlobalIsNan: coercion to number is acceptable
+	if (isNaN(id)) {
+		throw new Error("please provide a numeric ID");
+	}
+
+	const result = session.execute(
+		`delete
+			demo_table
+		where
+			id = :id`,
+		[id],
+	);
+
+	// biome-ignore lint/complexity/noUselessTernary: type cast needed for MLE
+	success.value = result.rowsAffected === 1 ? true : false;
 }

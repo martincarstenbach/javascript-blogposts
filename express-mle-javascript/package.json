@@ -1,16 +1,19 @@
 {
-  "dependencies": {
-    "body-parser": "^1.20.3",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "oracledb": "^6.7.1"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4"
-  },
-  "scripts": {
-    "format": "npx biome format ./src",
-    "lint": "npx biome lint --error-on-warnings ./src",
-    "dev": "node ./src/server/app.mjs"
-  }
+	"dependencies": {
+		"body-parser": "^1.20.3",
+		"dotenv": "^16.4.7",
+		"express": "^4.21.2",
+		"oracledb": "^6.7.1"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"chai": "^5.1.2",
+		"mocha": "^11.0.1"
+	},
+	"scripts": {
+		"format": "npx biome format ./src",
+		"lint": "npx biome lint --error-on-warnings ./src",
+		"dev": "node ./src/server/app.mjs",
+		"test": "npx mocha ./test"
+	}
 }

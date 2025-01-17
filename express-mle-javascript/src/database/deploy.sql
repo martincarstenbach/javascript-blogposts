@@ -3,7 +3,9 @@
 -- 23ai [Free] > 23.5 for aarch64 Linux or x86-64. The project's readme shows you one
 -- possible way of deploying this script
 
-create table if not exists demo_table (
+drop table if exists demo_table purge;
+
+create table demo_table (
     id number generated always as identity,
     constraint pk_demo_table primary key(id),
     ts timestamp default systimestamp not null,
@@ -19,9 +21,12 @@ mle create-module -filename mle-server-side-code.mjs -module-name demo_module -r
 -- Before you can use server-side JavaScript you have to create call specifications
 -- Please refer to the Oracle JavaScript Developer's Guide, chapter 5 for details.
 
-create or replace procedure process_data(p_message varchar2)
+create or replace procedure process_data(
+        p_message in varchar2,
+        p_success out boolean
+    )
     as mle module demo_module
-    signature 'processData';
+    signature 'processData(string, Out<boolean>)';
 /
 
 create or replace function get_db_details
@@ -40,4 +45,12 @@ create or replace function get_messages
     return json
     as mle module demo_module
     signature 'getMessages';
+/
+
+create or replace procedure delete_message(
+        p_id number,
+        p_success out boolean
+    )
+    as mle module demo_module
+    signature 'deleteMessage(number, Out<boolean>)';
 /
