@@ -8,6 +8,9 @@
 		"rollup": "^4.34.4"
 	},
 	"dependencies": {
-		"@graphql-tools/schema": "^10.0.16"
+		"@graphql-tools/schema": "^10.0.16",
+		"chai": "^5.1.2",
+		"dotenv": "^16.4.7",
+		"mocha": "^11.1.0"
 	}
 }
