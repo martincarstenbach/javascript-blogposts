@@ -1,0 +1,35 @@
+# THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
+services:
+    oracle:
+        image: docker.io/gvenzl/oracle-free:23.6
+        ports:
+            - 1521:1521
+        environment:
+            - ORACLE_PASSWORD_FILE=/run/secrets/oracle-passwd
+            - APP_USER=martin
+            - APP_USER_PASSWORD_FILE=/run/secrets/app-passwd
+        volumes:
+            - oradata-vol:/opt/oracle/oradata
+        networks:
+            - backend
+        healthcheck:
+            test: [ "CMD", "healthcheck.sh" ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+        secrets:
+            - oracle-passwd
+            - app-passwd
+
+volumes:
+    oradata-vol:
+
+networks:
+    backend:
+
+secrets:
+    oracle-passwd:
+        external: true
+    app-passwd:
+        external: true
