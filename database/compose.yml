@@ -6,10 +6,11 @@ services:
             - 1521:1521
         environment:
             - ORACLE_PASSWORD_FILE=/run/secrets/oracle-passwd
-            - APP_USER=martin
+            - APP_USER=demouser
             - APP_USER_PASSWORD_FILE=/run/secrets/app-passwd
         volumes:
             - oradata-vol:/opt/oracle/oradata
+            - ./initialisation:/container-entrypoint-initdb.d:Z
         networks:
             - backend
         healthcheck:
