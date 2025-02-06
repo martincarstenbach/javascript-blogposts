@@ -1,35 +1,42 @@
 /**
  * Helper function to connect to the database. Tests for the availability of the
  * process object (which is not present in MLE) and either returns a node-oracledb
- * or a mle-js-oracledb connection to the caller
+ * or a mle-js-oracledb connection to the caller.
+ *
+ * It allows stand-alone testing as well as deployment against the database.
+ *
+ * - stand-alone test: see standalone.js
+ * - database test: deploy the bundle as described in the readme.
+ *
  * @returns [IConnection || Connection] a connection to the database
  */
 async function getConn() {
-	if (typeof process === 'undefined') {
+	if (typeof process === "undefined") {
 		// this is most likely the MLE branch
-		const { default: oracledb } = await import('mle-js-oracledb');
+		const { default: oracledb } = await import("mle-js-oracledb");
 		return oracledb.defaultConnection();
-	} else {
-		// this is most likely node-oracledb
-		if (
-			process.env.USER === undefined ||
-			process.env.PASSWORD === undefined ||
-			process.env.CONNECTION_STRING === undefined
-		) {
-			throw new Error('provide username, password and connection string as environment variables');
-		}
-
-		const { default: oracledb } = await import('oracledb');
-        global.oracledb = oracledb;
-
-		const connection = await oracledb.getConnection({
-			user: process.env.USER,
-			password: process.env.PASSWORD,
-			connectString: process.env.CONNECTION_STRING
-		});
-
-		return connection;
 	}
+	// this is most likely node-oracledb
+	if (
+		process.env.USER === undefined ||
+		process.env.PASSWORD === undefined ||
+		process.env.CONNECTION_STRING === undefined
+	) {
+		throw new Error(
+			"provide username, password and connection string as environment variables",
+		);
+	}
+
+	const { default: oracledb } = await import("oracledb");
+	global.oracledb = oracledb;
+
+	const connection = await oracledb.getConnection({
+		user: process.env.USER,
+		password: process.env.PASSWORD,
+		connectString: process.env.CONNECTION_STRING,
+	});
+
+	return connection;
 }
 
 /**
@@ -41,29 +48,33 @@ function resultToLCKeys(rows) {
 	if (Array.isArray(rows)) {
 		// this is a new array, emnpty at first, but it will contain all the "rows"
 		// from the result set with their keys converted to lower case
-		let newDataArray = [];
+		const newDataArray = [];
 		// now convert all keys of the object to lower case and append the new
 		// object to the array that is returned by the function
-		for (let obj of rows) {
+		for (const obj of rows) {
 			// some extra sanity checking
-			if (typeof obj !== 'object') {
+			if (typeof obj !== "object") {
 				throw new Error(
-					'something is wrong with this row in the result set, did you specify OUT_FORMAT_OBJECT?'
+					"something is wrong with this row in the result set, did you specify OUT_FORMAT_OBJECT?",
 				);
 			}
 			newDataArray.push(
-				Object.fromEntries(Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v]))
+				Object.fromEntries(
+					Object.entries(obj).map(([k, v]) => [k.toLowerCase(), v]),
+				),
 			);
 		}
 
 		return newDataArray;
-	} else if (typeof rows === 'object') {
-		const dataLC = Object.fromEntries(Object.entries(rows).map(([k, v]) => [k.toLowerCase(), v]));
+	}
+	if (typeof rows === "object") {
+		const dataLC = Object.fromEntries(
+			Object.entries(rows).map(([k, v]) => [k.toLowerCase(), v]),
+		);
 
 		return dataLC;
-	} else {
-		throw new Error('unknown input');
 	}
+	throw new Error("unknown input");
 }
 
 /**
@@ -88,8 +99,8 @@ export async function getLocationById(id) {
                 location_id = :id`,
 		[id],
 		{
-			outFormat: oracledb.OUT_FORMAT_OBJECT
-		}
+			outFormat: oracledb.OUT_FORMAT_OBJECT,
+		},
 	);
 
 	const data = result.rows[0];
@@ -102,11 +113,17 @@ export async function getLocationById(id) {
  * @returns {[Location]} an array of location types
  */
 
-export async function getLocation(street, postalCode, city, stateProvince, country) {
+export async function getLocation(
+	street,
+	postalCode,
+	city,
+	stateProvince,
+	country,
+) {
 	const connection = await getConn();
 
 	// construct the where clause and bind variables
-	let bindValues = [];
+	const bindValues = [];
 	let sql = `select
         location_id,
         street_address,
@@ -119,38 +136,34 @@ export async function getLocation(street, postalCode, city, stateProvince, count
     where
         1 = 1 `;
 
-	if (typeof street !== 'undefined') {
-		sql += 'and street_address = :street ';
+	if (typeof street !== "undefined") {
+		sql += "and street_address = :street ";
 		bindValues.push(street);
 	}
 
-	if (typeof postalCode !== 'undefined') {
-		sql += 'and postal_code = :postalCode ';
+	if (typeof postalCode !== "undefined") {
+		sql += "and postal_code = :postalCode ";
 		bindValues.push(postalCode);
 	}
 
-	if (typeof city !== 'undefined') {
-		sql += 'and city = :city ';
+	if (typeof city !== "undefined") {
+		sql += "and city = :city ";
 		bindValues.push(city);
 	}
 
-	if (typeof stateProvince !== 'undefined') {
-		sql += 'and state_provice = :stateProvince ';
+	if (typeof stateProvince !== "undefined") {
+		sql += "and state_provice = :stateProvince ";
 		bindValues.push(stateProvince);
 	}
 
-	if (typeof country !== 'undefined') {
-		sql += 'and country_id = :country ';
+	if (typeof country !== "undefined") {
+		sql += "and country_id = :country ";
 		bindValues.push(country);
 	}
 
-	const result = await connection.execute(
-        sql,
-        bindValues,
-        {
-			outFormat: oracledb.OUT_FORMAT_OBJECT
-		}
-    );
+	const result = await connection.execute(sql, bindValues, {
+		outFormat: oracledb.OUT_FORMAT_OBJECT,
+	});
 
 	const data = result.rows;
 	return resultToLCKeys(data);
@@ -176,8 +189,8 @@ export async function getAllLocations() {
             locations`,
 		[],
 		{
-			outFormat: oracledb.OUT_FORMAT_OBJECT
-		}
+			outFormat: oracledb.OUT_FORMAT_OBJECT,
+		},
 	);
 
 	const data = result.rows;

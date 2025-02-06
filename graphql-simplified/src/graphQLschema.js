@@ -1,9 +1,13 @@
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { getLocationById, getLocation, getAllLocations } from './databaseAPI.js';
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import {
+	getLocationById,
+	getLocation,
+	getAllLocations,
+} from "./databaseAPI.js";
 
 const typeDefs = `
 """
-this type represents HR.LOCATIONS.
+this type represents HR.LOCATIONS as per the Oracle Database Sample Schemas
 """
 type Location {
     location_id:     Int
@@ -16,7 +20,7 @@ type Location {
 
 """
 Each GraphQL schema must at least provide a way to query it. Other
-options include changing (mutation) and subscibing to data. This
+options include changing (mutation) and subscribing to data. This
 query type defines the 3 API calls and what data is returned.
 """
 type Query {
@@ -34,16 +38,25 @@ const resolvers = {
 		getLocationById: async (_, { id }) => {
 			return await getLocationById(id);
 		},
-		getLocation: async (_, { street, postalCode, city, stateProvince, country }) => {
-			return await getLocation(street, postalCode, city, stateProvince, country);
-		}
-	}
+		getLocation: async (
+			_,
+			{ street, postalCode, city, stateProvince, country },
+		) => {
+			return await getLocation(
+				street,
+				postalCode,
+				city,
+				stateProvince,
+				country,
+			);
+		},
+	},
 };
 
 export function generateSchema() {
 	const executableSchema = makeExecutableSchema({
 		typeDefs,
-		resolvers
+		resolvers,
 	});
 
 	return executableSchema;

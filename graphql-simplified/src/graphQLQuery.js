@@ -1,5 +1,5 @@
-import { graphql } from 'graphql';
-import { generateSchema } from './graphQLschema.js';
+import { graphql } from "graphql";
+import { generateSchema } from "./graphQLschema.js";
 
 /**
  * Perform a generic GraphQL query
@@ -8,12 +8,12 @@ import { generateSchema } from './graphQLschema.js';
  * @returns {object} the JSON representation of the query result. Might contain errors, too
  */
 export async function graphQLQuery(queryText, args) {
-    const schema = await generateSchema();
-    const results = await graphql({
-        schema,
-        source: queryText,
-        variableValues: args,
-    });
+	const schema = await generateSchema();
+	const results = await graphql({
+		schema,
+		source: queryText,
+		variableValues: args,
+	});
 
-    return results;
+	return results;
 }
