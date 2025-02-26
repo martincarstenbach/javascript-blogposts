@@ -1,8 +1,14 @@
 {
   "dependencies": {
-    "@biomejs/biome": "1.8.0",
-    "mle-js": "^23.4.0",
-    "typescript": "^5.4.5"
+    "@biomejs/biome": "^1.9.4",
+    "mle-js": "^23.7.0",
+    "typescript": "^5.7.3"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "build": "npx tsc",
+    "lint": "npx biome lint --verbose src/typescript",
+    "format": "npx biome format --verbose src/typescript",
+    "deploy": "npx tsc && bash utils/deploy.sh"
+  }
 }

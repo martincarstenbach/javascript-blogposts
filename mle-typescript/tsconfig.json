@@ -1,18 +1,14 @@
 {
-    "compilerOptions": {
-        "target": "ESNext",
-        "module": "ESNext",
-        "rootDir": "src", 
-        "outDir": "dist",
-        "noEmitOnError": true,
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "strict": true,
-        "skipLibCheck": false,
-        "lib": [
-            "ES6",
-            "ES2017",
-            "ES2021"
-        ]
-    }
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"rootDir": "src/typescript",
+		"outDir": "dist",
+		"noEmitOnError": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"strict": true,
+		"skipLibCheck": false,
+		"lib": ["ES6", "ES2017", "ES2021"]
+	}
 }
