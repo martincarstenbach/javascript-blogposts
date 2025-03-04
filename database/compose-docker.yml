@@ -1,0 +1,27 @@
+# THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
+services:
+  oracle:
+    image: docker.io/gvenzl/oracle-free:23.6
+    ports:
+      - 1521:1521
+    environment:
+      - ORACLE_PASSWORD=changeOnInstall
+      - APP_USER=demouser
+      - APP_USER_PASSWORD_FILE=demouser
+    volumes:
+      - oradata-vol:/opt/oracle/oradata
+      - ./initialisation:/container-entrypoint-initdb.d
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  oradata-vol:
+
+networks:
+  backend:
