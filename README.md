@@ -7,7 +7,7 @@ This directory contains all the code used in my JavaScript blog posts at <https:
 | Project | Contents | Link to post | 
 | -- | -- | -- |
 | [express-mle-javascript](./express-mle-javascript/readme.md) | Short example showing how to combine node-express and MLE/JavaScript | [Blog Post](https://martincarstenbach.com/2025/01/17/node-express-mle-javascript-example/) |
-| [mle-typescript](./mle-typescript/README.md) | Example for migrating from plain JavaScript to TypeScript to make use of type-checking and linting | [Blog Post](https://martincarstenbach.com/2023/07/04/linting-mle-javascript-modules-in-continuous-integration-pipelines/) |
+| [mle-typescript](./mle-typescript/README.md) | Example for migrating from plain JavaScript to TypeScript to make use of type-checking and linting | [Readme](./mle-typescript/README.md) |
 | [graphql-simplified](./graphql-simplified/README.md) | Simplified version of the original GraphQL Example | [Blog Post](https://martincarstenbach.com/2024/06/06/creating-a-graphql-endpoint-within-the-database-redux/) |
 | [mle-sqlcl-liquibase](./mle-sqlcl-liquibase/readme.md) | Example how to use `runOraclescript` to create MLE/JavaScript modules | [Blog Post](https://martincarstenbach.com/2024/08/15/create-mle-javascript-modules-using-liquibase/) |
 

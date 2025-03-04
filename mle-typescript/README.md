@@ -1,153 +1,140 @@
-# Linting MLE JavaScript Modules in Continuous Integration Pipelines
+# Multilingual Engine/Typescript example
 
-The code has been updated to avoid the following issues with ESLint:
+This little project demonstrates the workflow using [Typescript](https://www.typescriptlang.org/) to develop server-side JavaScript code. It features a little application allowing multiple people to organise their to do lists. Each user can create categories for their lists. Each item on the to do list can have a priority associated with it.
+
+The Typescript code in this example provides an API you can invoke, for example via Oracle REST Data Services (ORDS) or node-express to perform typical CRUD operations for the main tables (users, categories, todo_list).
+
+## Development workflow
+
+Broadly speaking you follow these steps when writing MLE code in Typescript:
+
+- You develop your Typescript code locally using Visual Studio Code (VSCode) or a comparable editor
+- The IDE should offer convenience features like type checking, linting, formatting, ...
+- Thanks to the [MLE Type Declarations](https://oracle-samples.github.io/mle-modules/) you write more robust code that is less prone to runtime errors
+- Once the code is ready for local testing, use `npm run deploy` to deploy it
+
+The following sections provide additional details concerning these concepts.
+
+### Editor
+
+Your editor is the primary tool for writing Typescript. [Visual Studio Code](https://code.visualstudio.com/) is a great choice because it has strong support for the [Oracle Database](https://marketplace.visualstudio.com/items?itemName=Oracle.sql-developer). It also features excellent Typescript (and JavaScript) support. If you decide to use VSCode to write server-side Typescript code, you may want to improve the developer experience by
+
+- using MLE Type Declarations
+- add extensions to VSCode, like
+  - Oracle SQL Developer Extension for VSCode
+  - prettier, biome, etc. for code formatting
+  - eslint, biome, etc. for linting your code
+  - Docker for your compose file management and local container management
+  - others
+- use the built-in terminal to run commands
+
+When you are done writing your Typescript code you need to transpile it to JavaScript in preparation of the deployment.
+
+### Database Deployment
+
+This project provides you with the _build_ script to transpile Typescript, storing the result in `dist`. If you want do transpile and deploy in one step, use the `deploy` script. As soon as SQLcl projects support MLE/JavaScript, this step will be overhauled and updated.
+
+<details>
+  <summary><tt>npm run deploy</tt></summary>
 
 ```
-npm install --save-dev eslint @eslint/js @types/eslint__js typescript typescript-eslint
-npm WARN deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-npm WARN deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-npm WARN deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+> deploy
+> npx tsc && bash utils/deploy.sh
 
-added 132 packages in 2s
++++ pwd
+++ basename /home/martin/devel/javascript/javascript-blogposts/mle-typescript
++ [[ mle-typescript != mle-typescript ]]
++ cp -v src/database/01_users.sql src/database/02_categories.sql src/database/03_todo_list.sql src/database/04_todo_package.sql dist
+'src/database/01_users.sql' -> 'dist/01_users.sql'
+'src/database/02_categories.sql' -> 'dist/02_categories.sql'
+'src/database/03_todo_list.sql' -> 'dist/03_todo_list.sql'
+'src/database/04_todo_package.sql' -> 'dist/04_todo_package.sql'
++ cp -v src/database/controller.xml dist
+'src/database/controller.xml' -> 'dist/controller.xml'
++ cp -v utils/deploy.sql dist
+'utils/deploy.sql' -> 'dist/deploy.sql'
++ cd dist
++ /opt/oracle/sqlcl/bin/sql /nolog @deploy
 
-35 packages are looking for funding
-  run `npm fund` for details
+
+SQLcl: Release 24.3 Production on Fri Feb 28 16:53:55 2025
+
+Copyright (c) 1982, 2025, Oracle.  All rights reserved.
+
+Connected.
+--Starting Liquibase at 2025-02-28T16:53:55.996759773 (version 4.25.0.305.0400 #0 built at 2024-10-31 21:25+0000)
+Database is up to date, no changesets to execute
+
+UPDATE SUMMARY
+Run:                          0
+Previously run:               3
+Filtered out:                 0
+-------------------------------
+Total change sets:            3
+
+
+
+Operation completed successfully.
+
+MLE Module todos_module created
+
+MLE env TODOS_ENV created.
+
+Disconnected from Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.6.0.24.10
+```
+</details>
+
+
+This command will create the example database objects and deploy the transpiled JavaScript code as MLE module.
+
+### Typescript and MLE Type Declarations
+
+Typescript is a superset of JavaScript and it offers many advantages for developers. 
+
+MLE Type Declarations greatly improve the developer experience. As the name suggests, Typescript adds types to JavaScript. With that it's possible to find many bugs while you are writing your code.
+
+The use of Typescript requires a configuration file (`tsconfig.json`). This project comes with a suitable file you can use as the basis for your own code.
+
+### Unit Tests
+
+This project also features unit tests you can run. Adding unit tests along new features is a much needed practice, especially when using JavaScript.
+
+<details>
+  <summary><tt>npm run test</tt></summary>
+
+This needs completing
+
+<details>
+
+This command runs all the unit tests and prints the output on screen.
+
+### Linting Code
+
+This project uses [biome.js](https://biomejs.dev/) for linting, but this is merely one option among many. ESLint is another popular tool in the JavaScript ecosystem, and there are many additional ones out for you to try.
+
+<details>
+  <summary><tt>npm run lint</tt></summary>
+
 ```
 
-This [seems to be very hard to fix](https://github.com/vercel/next.js/issues/66239) which is why the linting portion switched to [biome](https://bestofjs.org/projects/biome).
+> lint
+> npx biome lint --verbose src/typescript
 
-## Database Setup
+Checked 1 file in 1106µs. No fixes applied.
+ VERBOSE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-The following SQL code must be executed in the database
+  ℹ Files processed:
+  
+  - src/typescript/todos.ts
+  
 
-```sql
-CREATE TABLE j_purchaseorder
-  (id          VARCHAR2 (32) NOT NULL PRIMARY KEY,
-   date_loaded TIMESTAMP (6) WITH TIME ZONE,
-   po_document JSON);
+ VERBOSE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-INSERT INTO j_purchaseorder
-  VALUES (
-    SYS_GUID(),
-    to_date('30-DEC-2014'),
-    '{"PONumber"             : 1600,
-      "Reference"            : "ABULL-20140421",
-      "Requestor"            : "Alexis Bull",
-      "User"                 : "ABULL",
-      "CostCenter"           : "A50",
-      "ShippingInstructions" :
-        {"name"    : "Alexis Bull",
-         "Address" : {"street"  : "200 Sporting Green",
-                      "city"    : "South San Francisco",
-                      "state"   : "CA",
-                      "zipCode" : 99236,
-                      "country" : "United States of America"},
-         "Phone"   : [{"type" : "Office", "number" : "909-555-7307"},
-                      {"type" : "Mobile", "number" : "415-555-1234"}]},
-      "Special Instructions" : null,
-      "AllowPartialShipment" : true,
-      "LineItems"            :
-        [{"ItemNumber" : 1,
-          "Part"       : {"Description" : "One Magic Christmas",
-                          "UnitPrice"   : 19.95,
-                          "UPCCode"     : 13131092899},
-          "Quantity"   : 9.0},
-         {"ItemNumber" : 2,
-          "Part"       : {"Description" : "Lethal Weapon",
-                          "UnitPrice"   : 19.95,
-                          "UPCCode"     : 85391628927},
-          "Quantity"   : 5.0}]}');
-
-INSERT INTO j_purchaseorder
-  VALUES (
-    SYS_GUID(),
-    to_date('30-DEC-2014'),
-    '{"PONumber"             : 672,
-      "Reference"            : "SBELL-20141017",
-      "Requestor"            : "Sarah Bell",
-      "User"                 : "SBELL",
-      "CostCenter"           : "A50",
-      "ShippingInstructions" : {"name"    : "Sarah Bell",
-                                "Address" : {"street"  : "200 Sporting Green",
-                                             "city"    : "South San Francisco",
-                                             "state"   : "CA",
-                                             "zipCode" : 99236,
-                                             "country" : "United States of America"},
-                                "Phone"   : "983-555-6509"},
-      "Special Instructions" : "Courier",
-      "LineItems"            :
-        [{"ItemNumber" : 1,
-          "Part"       : {"Description" : "Making the Grade",
-                          "UnitPrice"   : 20,
-                          "UPCCode"     : 27616867759},
-          "Quantity"   : 8.0},
-         {"ItemNumber" : 2,
-          "Part"       : {"Description" : "Nixon",
-                          "UnitPrice"   : 19.95,
-                          "UPCCode"     : 717951002396},
-          "Quantity"   : 5},
-         {"ItemNumber" : 3,
-          "Part"       : {"Description" : "Eric Clapton: Best Of 1981-1999",
-                          "UnitPrice"   : 19.95,
-                          "UPCCode"     : 75993851120},
-          "Quantity"   : 5.0}]}');
+  ℹ Files fixed:
+  
+  ⚠ The list is empty.
 ```
+</details>
 
-## Example usage
-
-As soon as the TypeScript file has been transpiled to JavaScript it can be loaded as a MLE module, and used.
-
-```sql
-create or replace mle module blogpost_module
-language javascript as
-
-// contents of the transpiled file here
-```
-
-With the module created, you need to add a call specification: to make the JavaScript function available in SQL and PL/SQL
-
-```sql
-create or replace procedure process_purchase_order(
-    po_number number
-) as mle module blogpost_module
-signature 'processPurchaseOrder';
-```
-
-Let's try it!
-
-```sql
-SELECT
-    JSON_VALUE(po_document, '$.lastUpdate' DEFAULT 'does not yet exist' ON EMPTY) last_update
-FROM
-    j_purchaseorder po
-WHERE
-    po.po_document.PONumber = 672
-/
-
-LAST_UPDATE           
-_____________________ 
-does not yet exist
-
-BEGIN
-  process_purchase_order(672);
-end;
-/
-
-SELECT
-    JSON_VALUE(
-      po_document,
-      '$.lastUpdate' 
-      DEFAULT 'does not yet exist' ON EMPTY
-    ) last_update
-FROM
-    j_purchaseorder po
-WHERE
-    po.po_document.PONumber = 672
-/
-
-LAST_UPDATE                 
-___________________________ 
-2024-06-06T15:21:35.700Z
-```
-
-That was it - nice!
+This command will tell you if your source file(s) adhere to your coding standards.
