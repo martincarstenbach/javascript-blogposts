@@ -3,7 +3,7 @@
 		"target": "ESNext",
 		"module": "ESNext",
 		"rootDir": "src/typescript",
-		"outDir": "dist",
+		"outDir": "src/javascript",
 		"noEmitOnError": true,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
