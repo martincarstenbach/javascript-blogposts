@@ -14,7 +14,7 @@ CREATE TABLE demouser.locations
     , country_id     CHAR(2)
     ) ;
 
-INSERT INTO locations VALUES
+INSERT INTO demouser.locations VALUES
       ( 1000
       , '1297 Via Cola di Rie'
       , '00989'
@@ -23,7 +23,7 @@ INSERT INTO locations VALUES
       , 'IT'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1100
       , '93091 Calle della Testa'
       , '10934'
@@ -32,7 +32,7 @@ INSERT INTO locations VALUES
       , 'IT'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1200
       , '2017 Shinjuku-ku'
       , '1689'
@@ -41,7 +41,7 @@ INSERT INTO locations VALUES
       , 'JP'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1300
       , '9450 Kamiya-cho'
       , '6823'
@@ -50,7 +50,7 @@ INSERT INTO locations VALUES
       , 'JP'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1400
       , '2014 Jabberwocky Rd'
       , '26192'
@@ -59,7 +59,7 @@ INSERT INTO locations VALUES
       , 'US'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1500
       , '2011 Interiors Blvd'
       , '99236'
@@ -68,7 +68,7 @@ INSERT INTO locations VALUES
       , 'US'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1600
       , '2007 Zagora St'
       , '50090'
@@ -77,7 +77,7 @@ INSERT INTO locations VALUES
       , 'US'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1700
       , '2004 Charade Rd'
       , '98199'
@@ -86,7 +86,7 @@ INSERT INTO locations VALUES
       , 'US'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1800
       , '147 Spadina Ave'
       , 'M5V 2L7'
@@ -95,7 +95,7 @@ INSERT INTO locations VALUES
       , 'CA'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 1900
       , '6092 Boxwood St'
       , 'YSW 9T2'
@@ -104,7 +104,7 @@ INSERT INTO locations VALUES
       , 'CA'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2000
       , '40-5-12 Laogianggen'
       , '190518'
@@ -113,7 +113,7 @@ INSERT INTO locations VALUES
       , 'CN'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2100
       , '1298 Vileparle (E)'
       , '490231'
@@ -122,7 +122,7 @@ INSERT INTO locations VALUES
       , 'IN'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2200
       , '12-98 Victoria Street'
       , '2901'
@@ -131,7 +131,7 @@ INSERT INTO locations VALUES
       , 'AU'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2300
       , '198 Clementi North'
       , '540198'
@@ -140,7 +140,7 @@ INSERT INTO locations VALUES
       , 'SG'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2400
       , '8204 Arthur St'
       , NULL
@@ -149,7 +149,7 @@ INSERT INTO locations VALUES
       , 'GB'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2500
       , 'Magdalen Centre, The Oxford Science Park'
       , 'OX9 9ZB'
@@ -158,7 +158,7 @@ INSERT INTO locations VALUES
       , 'GB'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2600
       , '9702 Chester Road'
       , '09629850293'
@@ -167,7 +167,7 @@ INSERT INTO locations VALUES
       , 'GB'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2700
       , 'Schwanthalerstr. 7031'
       , '80925'
@@ -176,7 +176,7 @@ INSERT INTO locations VALUES
       , 'DE'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2800
       , 'Rua Frei Caneca 1360 '
       , '01307-002'
@@ -185,7 +185,7 @@ INSERT INTO locations VALUES
       , 'BR'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 2900
       , '20 Rue des Corps-Saints'
       , '1730'
@@ -194,7 +194,7 @@ INSERT INTO locations VALUES
       , 'CH'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 3000
       , 'Murtenstrasse 921'
       , '3095'
@@ -203,7 +203,7 @@ INSERT INTO locations VALUES
       , 'CH'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 3100
       , 'Pieter Breughelstraat 837'
       , '3029SK'
@@ -212,7 +212,7 @@ INSERT INTO locations VALUES
       , 'NL'
       );
 
-  INSERT INTO locations VALUES
+  INSERT INTO demouser.locations VALUES
       ( 3200
       , 'Mariano Escobedo 9991'
       , '11932'
