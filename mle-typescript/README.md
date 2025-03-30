@@ -1,8 +1,8 @@
 # Multilingual Engine/Typescript example
 
-This little project demonstrates the workflow using [Typescript](https://www.typescriptlang.org/) to develop server-side JavaScript code. It features a little application allowing multiple people to organise their to do lists. Each user can create categories for their lists. Each item on the to do list can have a priority associated with it.
+This little project demonstrates the workflow using [Typescript](https://www.typescriptlang.org/) to develop server-side JavaScript code, powered by [Multilingual Engine (MLE)](https://docs.oracle.com/en/database/oracle/oracle-database/23/mlejs/). It features a little application allowing multiple people to organise their to do lists. Each user can create categories for their lists. Each item on the to do list can have a priority associated with it.
 
-The Typescript code in this example provides an API you can invoke, for example via Oracle REST Data Services (ORDS) or node-express to perform typical CRUD operations for the main tables (users, categories, todo_list).
+The Typescript code in this example provides an API you can invoke, for example via [Oracle REST Data Services (ORDS)](https://www.oracle.com/ords) or node-express to perform typical CRUD operations for the main tables (users, categories, todo_list).
 
 ## Development workflow
 
@@ -19,12 +19,12 @@ The following sections provide additional details concerning these concepts.
 
 Your editor is the primary tool for writing Typescript. [Visual Studio Code](https://code.visualstudio.com/) is a great choice because it has strong support for the [Oracle Database](https://marketplace.visualstudio.com/items?itemName=Oracle.sql-developer). It also features excellent Typescript (and JavaScript) support. If you decide to use VSCode to write server-side Typescript code, you may want to improve the developer experience by
 
-- using MLE Type Declarations
+- using [MLE Type Declarations](https://oracle-samples.github.io/mle-modules/)
 - add extensions to VSCode, like
   - Oracle SQL Developer Extension for VSCode
   - prettier, biome, etc. for code formatting
   - eslint, biome, etc. for linting your code
-  - Docker for your compose file management and local container management
+  - Docker/Podman for your compose file management and local container management
   - others
 - use the built-in terminal to run commands
 
@@ -32,7 +32,7 @@ When you are done writing your Typescript code you need to transpile it to JavaS
 
 ### Database Deployment
 
-This project provides you with the _build_ script to transpile Typescript, storing the result in `dist`. If you want do transpile and deploy in one step, use the `deploy` script. As soon as SQLcl projects support MLE/JavaScript, this step will be overhauled and updated.
+This project provides you with the _build_ script to transpile Typescript, storing the result in `dist`. If you want do transpile and deploy in one step, use the `deploy` script. As soon as [SQLcl](https://www.oracle.com/sqlcl) projects support MLE/JavaScript, this step will be overhauled and updated.
 
 <details>
   <summary><tt>npm run deploy</tt></summary>

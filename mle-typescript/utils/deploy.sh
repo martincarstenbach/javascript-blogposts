@@ -7,4 +7,4 @@ set -euxo pipefail
     exit 1
 }
 
-/opt/oracle/sqlcl/bin/sql /nolog @utils/deploy
+sql /nolog @utils/deploy

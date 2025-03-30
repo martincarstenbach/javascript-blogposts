@@ -6,6 +6,12 @@ enum priorities {
 	HIGH = "high",
 }
 
+/**
+ * Create a new user in the database and return its primary key
+ *
+ * @param {string} name the new user's name
+ * @returns {number} the new user's primary key
+ */
 export function newUser(name: string): number {
 	const result = session.execute(
 		"insert into users (name) values (:name) returning id into :id",
@@ -25,6 +31,35 @@ export function newUser(name: string): number {
 	const id = result.outBinds.id[0];
 
 	return id;
+}
+
+/**
+ * Update an existing user
+ *
+ * Does NOT check if the user exists
+ *
+ * @param {string} name the new user name
+ * @param id the user's ID
+ */
+export function updateUser(name: string, id: number): void {
+	session.execute(
+		`update users
+			set name = :name 
+		where
+			id = :id`,
+		{
+			name: {
+				dir: oracledb.BIND_IN,
+				val: name,
+				type: oracledb.STRING,
+			},
+			id: {
+				dir: oracledb.BIND_IN,
+				val: id,
+				type: oracledb.NUMBER,
+			},
+		},
+	);
 }
 
 export function newCategory(name: string, priority: priorities): number {
