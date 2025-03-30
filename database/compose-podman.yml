@@ -1,7 +1,7 @@
 # THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
 services:
     oracle:
-        image: docker.io/gvenzl/oracle-free:23.6
+        image: docker.io/gvenzl/oracle-free:23.7
         ports:
             - 1521:1521
         environment:
