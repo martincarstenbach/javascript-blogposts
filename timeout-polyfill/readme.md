@@ -4,6 +4,7 @@ As per its [documentation](https://docs.oracle.com/en/database/oracle/oracle-dat
 
 This little project demonstrates the creation and use of polyfills for `setTimeout()`, `clearTimeout()`, `setInterval()`, and `clearInterval()`. This is not a perfect solution though!
 
-Most JavaScript runtimes typically have 2 separate task queues. The _microtask_ queue is used to execute promise reactions. There's another one, referred to as the _task queue_ that's mostly used for I/O related work. Timers are usually part of the task queue, meaning that if you schedule a task it will run _after_ all scheduled micro tasks. The polyfill introduced in this article does not behave that way which may break some packages that rely on this principle for event dispatching.
+> [!IMPORTANT]  
+> Most JavaScript runtimes typically have 2 separate task queues. The _microtask_ queue is used to execute promise reactions. There's another one, referred to as the _task queue_ that's mostly used for I/O related work. Timers are usually part of the task queue, meaning that if you schedule a task it will run _after_ all scheduled micro tasks. The polyfill introduced in this article does not behave that way which may break some packages that rely on this principle for event dispatching.
 
-Please refer to the blog post for more details.
+Please refer [to the blog post](https://martincarstenbach.com/2025/05/22/multilingual-engine-polyfill-timeouts-and-intervals/) for more details.
