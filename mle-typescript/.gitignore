@@ -131,7 +131,7 @@ out
 .yarn/install-state.gz
 .pnp.*
 
-dist/
+# dist/
 src/javascript
 
 package.json_*
