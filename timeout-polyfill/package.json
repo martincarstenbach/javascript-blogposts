@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "esbuild": "^0.25.4"
+  },
+  "scripts": {
+    "build": "npx esbuild src/javascript/demo-mle.js --bundle --outfile=dist/bundle.js --format=esm"
+  },
+  "dependencies": {
+    "jimp": "^1.6.0"
+  }
+}
