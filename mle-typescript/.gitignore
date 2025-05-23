@@ -91,7 +91,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+# dist became redundant with the introduction of SQLcl projects
 
 # Gatsby files
 .cache/
@@ -135,3 +135,13 @@ dist/
 src/javascript
 
 package.json_*
+
+
+# Oracle SQLcl Projects
+artifact/*
+var/*
+*.tar.gz
+*.tz
+*.zip
+*.log
+**/.DS_Store
