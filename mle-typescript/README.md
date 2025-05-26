@@ -1,10 +1,10 @@
 # Multilingual Engine/Typescript example
 
-This little project demonstrates the workflow using [Typescript](https://www.typescriptlang.org/) to develop server-side JavaScript code, powered by [Multilingual Engine (MLE)](https://docs.oracle.com/en/database/oracle/oracle-database/23/mlejs/). It features a little application allowing multiple people to organise their to do lists. Each user can create categories for their lists. Each item on the to do list can have a priority associated with it.
+This little project demonstrates the workflow using [Typescript](https://www.typescriptlang.org/) to develop server-side JavaScript code, powered by [Multilingual Engine (MLE)](https://docs.oracle.com/en/database/oracle/oracle-database/23/mlejs/). It features a little application allowing multiple people to organise their to do lists. Each user can create categories for their lists. Each item on the to do list can have a priority associated with it. In the first iteration the database part is simulated. Time permitting a frontend will be added at a later stage
 
-The Typescript code in this example provides an API you can invoke, for example via [Oracle REST Data Services (ORDS)](https://www.oracle.com/ords) or node-express to perform typical CRUD operations for the main tables (users, categories, todo_list).
+The Typescript code in this example provides an API you can invoke, for example via [Oracle REST Data Services (ORDS)](https://www.oracle.com/ords) or [node-express](https://expressjs.com/) to perform typical CRUD operations for the main tables (users, categories, todo_list).
 
-## Development workflow
+## Typescript development and Oracle Database 23ai
 
 Broadly speaking you follow these steps when writing MLE code in Typescript:
 
@@ -12,6 +12,7 @@ Broadly speaking you follow these steps when writing MLE code in Typescript:
 - The IDE should offer convenience features like type checking, linting, formatting, ...
 - Thanks to the [MLE Type Declarations](https://oracle-samples.github.io/mle-modules/) you write more robust code that is less prone to runtime errors
 - Once the code is ready for local testing, use `npm run deploy` to deploy it
+- After the code has been deployed and tested locally it can be integrated into a CI/CD workflow as proposed by [SQLcl projects](https://docs.oracle.com/en/database/oracle/sql-developer-command-line/25.1/sqcug/introduction.html)
 
 The following sections provide additional details concerning these concepts.
 
@@ -20,6 +21,7 @@ The following sections provide additional details concerning these concepts.
 Your editor is the primary tool for writing Typescript. [Visual Studio Code](https://code.visualstudio.com/) is a great choice because it has strong support for the [Oracle Database](https://marketplace.visualstudio.com/items?itemName=Oracle.sql-developer). It also features excellent Typescript (and JavaScript) support. If you decide to use VSCode to write server-side Typescript code, you may want to improve the developer experience by
 
 - using [MLE Type Declarations](https://oracle-samples.github.io/mle-modules/)
+- creating short-lived branches to cover your ticket/work item
 - add extensions to VSCode, like
   - Oracle SQL Developer Extension for VSCode
   - prettier, biome, etc. for code formatting
@@ -28,159 +30,26 @@ Your editor is the primary tool for writing Typescript. [Visual Studio Code](htt
   - others
 - use the built-in terminal to run commands
 
-When you are done writing your Typescript code you need to transpile it to JavaScript in preparation of the deployment.
+When you are done writing your Typescript code you need to transpile it to JavaScript in preparation of the deployment. This is done via `npm run deploy`. This "script" action is defined in `package.json`. As you can see the deployment is facilitated by `utils/deploy.sh`. At the time of writing the deployment was hard-coded, future iterations of the code will use a tool to deploy arbitrary modules.
 
-### Database Deployment
+All you local changes should be done it a separate, short-lived branch that ends its existence with the ticket. Branches shouldn't contain too many work items or you'll risk not being able to merge into main within the work day.
 
-This project provides you with the _build_ script to transpile Typescript, storing the result in `dist`. If you want do transpile and deploy in one step, use the `deploy` script. As soon as [SQLcl](https://www.oracle.com/sqlcl) projects support MLE/JavaScript, this step will be overhauled and updated.
+### Details concerning the workflow
 
-<details>
-  <summary><tt>npm run deploy</tt></summary>
+Once you are happy with your changes to the Typescript file you can save the file and deploy the linted, formatted, and transpiled version into the database. According to the supplied `tsconfig.json` the Typescript compiler expects input files in `src/typescript`. The transpiled files will end up in `src/javascript` - the latter is excluded from Git via `.gitignore` since artefacts aren't supposed to be stored in version control.
 
-```
-> deploy
-> npx tsc && bash utils/deploy.sh
+In this simple example there is no need to bundle external, 3rd party libraries with your code, hence no mention of that step. More complex projects however can make use of module bundlers like [rollup](https://rollupjs.org/) or [esbuild](https://esbuild.github.io/) as well as many others.
 
-+++ pwd
-++ basename /home/martin/devel/javascript/javascript-blogposts/mle-typescript
-+ [[ mle-typescript != mle-typescript ]]
-+ cp -v src/database/01_users.sql src/database/02_categories.sql src/database/03_todo_list.sql src/database/04_todo_package.sql dist
-'src/database/01_users.sql' -> 'dist/01_users.sql'
-'src/database/02_categories.sql' -> 'dist/02_categories.sql'
-'src/database/03_todo_list.sql' -> 'dist/03_todo_list.sql'
-'src/database/04_todo_package.sql' -> 'dist/04_todo_package.sql'
-+ cp -v src/database/controller.xml dist
-'src/database/controller.xml' -> 'dist/controller.xml'
-+ cp -v utils/deploy.sql dist
-'utils/deploy.sql' -> 'dist/deploy.sql'
-+ cd dist
-+ /opt/oracle/sqlcl/bin/sql /nolog @deploy
+Finally Oracle's [SQLcl](https://www.oracle.com/database/sqldeveloper/technologies/sqlcl/download/) `mle create-module` command is invoked to deploy the transpiled module in the database. This is the point where you typically run unit tests and/or integration tests against the code, etc.
 
+If everything has gone to plan it's time to follow the workflow as described by [SQLcl projects](https://docs.oracle.com/en/database/oracle/sql-developer-command-line/25.1/sqcug/database-application-ci-cd.html). It's an opinionated workflow for database CI and has a proven track record for being robust and reliable.
 
-SQLcl: Release 24.3 Production on Fri Feb 28 16:53:55 2025
+### CI/CD pipeline
 
-Copyright (c) 1982, 2025, Oracle.  All rights reserved.
+After local testing has successfully completed as per the above step you can integrate your new code into the CI workflow by committing and pushing the branch to your _origin_. A CI pipeline might clone your CI database, deploy the changes, and run unit tests against the change. Once that passes, you can create a merge (or pull request, depending on platform) and integrate into your main branch.
 
-Connected.
---Starting Liquibase at 2025-02-28T16:53:55.996759773 (version 4.25.0.305.0400 #0 built at 2024-10-31 21:25+0000)
-Database is up to date, no changesets to execute
+The entire process is discussed in [Implementing DevOps principles with Oracle Database](https://www.oracle.com/a/ocom/docs/database/implementing-devops-principles-with-oracle-database.pdf)
 
-UPDATE SUMMARY
-Run:                          0
-Previously run:               3
-Filtered out:                 0
--------------------------------
-Total change sets:            3
+## Summary
 
-
-
-Operation completed successfully.
-
-MLE Module todos_module created
-
-MLE env TODOS_ENV created.
-
-Disconnected from Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
-Version 23.6.0.24.10
-```
-</details>
-
-
-This command will create the example database objects and deploy the transpiled JavaScript code as MLE module.
-
-### Typescript and MLE Type Declarations
-
-Typescript is a superset of JavaScript and it offers many advantages for developers. 
-
-MLE Type Declarations greatly improve the developer experience. As the name suggests, Typescript adds types to JavaScript. With that it's possible to find many bugs while you are writing your code.
-
-The use of Typescript requires a configuration file (`tsconfig.json`). This project comes with a suitable file you can use as the basis for your own code.
-
-### Unit Tests
-
-This project also features unit tests you can run. Adding unit tests along new features is a much needed practice, especially when using JavaScript.
-
-<details>
-  <summary><tt>npm run test</tt></summary>
-
-This needs completing
-
-<details>
-
-This command runs all the unit tests and prints the output on screen.
-
-### Linting Code
-
-This project uses [biome.js](https://biomejs.dev/) for linting, but this is merely one option among many. ESLint is another popular tool in the JavaScript ecosystem, and there are many additional ones out for you to try.
-
-<details>
-  <summary><tt>npm run lint</tt></summary>
-
-```
-
-> lint
-> npx biome lint --verbose src/typescript
-
-Checked 1 file in 1106µs. No fixes applied.
- VERBOSE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ℹ Files processed:
-  
-  - src/typescript/todos.ts
-  
-
- VERBOSE  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ℹ Files fixed:
-  
-  ⚠ The list is empty.
-```
-</details>
-
-This command will tell you if your source file(s) adhere to your coding standards.# Example Template
-
-The introduction summarizes the purpose and function of the project, and should be concise (a brief paragraph or two). This introduction may be the same as the first paragraph on the project page.
-
-For a full description of the module, visit the
-[project page](https://www.oracle.com).
-
-Submit bug reports and feature suggestions, or track changes in the
-[issue queue](https://www.oracle.com).
-
-
-## Table of contents (optional)
-
-- Requirements
-- Installation
-- Configuration
-- Troubleshooting
-- FAQ
-- Maintainers
-
-
-## Requirements (required)
-
-This project requires the following:
-
-- [Hard Work](https://www.noMorePlay.com)
-
-
-## Installation (required, unless a separate INSTALL.md is provided)
-
-Install as you would normally install.
-
-## Configuration (optional)
-
-## Troubleshooting (optional)
-
-## FAQ (optional)
-
-**Q: How do I write a README?**
-
-**A:** Follow this template. It's fun and easy!
-
-## Maintainers (optional)
-
-
-## For more information about SQLcl Projects:
-Reach out to the SQLcl Project Extension documentation by visiting the [Database Application CI/CD Doc Link](https://docs.oracle.com/en/database/oracle/sql-developer-command-line/24.3/sqcug/database-application-ci-cd.html).
+Modern development techniques such as CI/CD and DevOps are applicable to database applications as much as they are to front-end applications. The stateful nature of database development requires some extra care, much of which is taken care off by the tools mentioned in this readme. Have fun coding!
