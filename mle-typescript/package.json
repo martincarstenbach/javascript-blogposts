@@ -9,6 +9,6 @@
     "build": "npx tsc",
     "lint": "npx biome lint --verbose src/typescript",
     "format": "npx biome format --verbose src/typescript",
-    "deploy": "npx tsc && bash utils/deploy.sh"
+    "deploy": "bash utils/deploy.sh"
   }
 }
