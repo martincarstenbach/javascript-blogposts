@@ -1,7 +1,6 @@
 {
-    "biome.requireConfiguration": false,
-    "biome.lspBin": "./mle-typescript/node_modules/@biomejs/biome/bin/biome",
-    "editor.formatOnSave": true,
-    "notebook.defaultFormatter": "biomejs.biome",
-    "editor.defaultFormatter": "biomejs.biome",
+	"biome.requireConfiguration": false,
+	"editor.formatOnSave": true,
+	"notebook.defaultFormatter": "biomejs.biome",
+	"editor.defaultFormatter": "biomejs.biome"
 }

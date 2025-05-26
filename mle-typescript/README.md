@@ -1,153 +1,55 @@
-# Linting MLE JavaScript Modules in Continuous Integration Pipelines
+# Multilingual Engine/Typescript example
 
-The code has been updated to avoid the following issues with ESLint:
+This little project demonstrates the workflow using [Typescript](https://www.typescriptlang.org/) to develop server-side JavaScript code, powered by [Multilingual Engine (MLE)](https://docs.oracle.com/en/database/oracle/oracle-database/23/mlejs/). It features a little application allowing multiple people to organise their to do lists. Each user can create categories for their lists. Each item on the to do list can have a priority associated with it. In the first iteration the database part is simulated. Time permitting a frontend will be added at a later stage
 
-```
-npm install --save-dev eslint @eslint/js @types/eslint__js typescript typescript-eslint
-npm WARN deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-npm WARN deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-npm WARN deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+The Typescript code in this example provides an API you can invoke, for example via [Oracle REST Data Services (ORDS)](https://www.oracle.com/ords) or [node-express](https://expressjs.com/) to perform typical CRUD operations for the main tables (users, categories, todo_list).
 
-added 132 packages in 2s
+## Typescript development and Oracle Database 23ai
 
-35 packages are looking for funding
-  run `npm fund` for details
-```
+Broadly speaking you follow these steps when writing MLE code in Typescript:
 
-This [seems to be very hard to fix](https://github.com/vercel/next.js/issues/66239) which is why the linting portion switched to [biome](https://bestofjs.org/projects/biome).
+- You develop your Typescript code locally using Visual Studio Code (VSCode) or a comparable editor
+- The IDE should offer convenience features like type checking, linting, formatting, ...
+- Thanks to the [MLE Type Declarations](https://oracle-samples.github.io/mle-modules/) you write more robust code that is less prone to runtime errors
+- Once the code is ready for local testing, use `npm run deploy` to deploy it
+- After the code has been deployed and tested locally it can be integrated into a CI/CD workflow as proposed by [SQLcl projects](https://docs.oracle.com/en/database/oracle/sql-developer-command-line/25.1/sqcug/introduction.html)
 
-## Database Setup
+The following sections provide additional details concerning these concepts.
 
-The following SQL code must be executed in the database
+### Editor
 
-```sql
-CREATE TABLE j_purchaseorder
-  (id          VARCHAR2 (32) NOT NULL PRIMARY KEY,
-   date_loaded TIMESTAMP (6) WITH TIME ZONE,
-   po_document JSON);
+Your editor is the primary tool for writing Typescript. [Visual Studio Code](https://code.visualstudio.com/) is a great choice because it has strong support for the [Oracle Database](https://marketplace.visualstudio.com/items?itemName=Oracle.sql-developer). It also features excellent Typescript (and JavaScript) support. If you decide to use VSCode to write server-side Typescript code, you may want to improve the developer experience by
 
-INSERT INTO j_purchaseorder
-  VALUES (
-    SYS_GUID(),
-    to_date('30-DEC-2014'),
-    '{"PONumber"             : 1600,
-      "Reference"            : "ABULL-20140421",
-      "Requestor"            : "Alexis Bull",
-      "User"                 : "ABULL",
-      "CostCenter"           : "A50",
-      "ShippingInstructions" :
-        {"name"    : "Alexis Bull",
-         "Address" : {"street"  : "200 Sporting Green",
-                      "city"    : "South San Francisco",
-                      "state"   : "CA",
-                      "zipCode" : 99236,
-                      "country" : "United States of America"},
-         "Phone"   : [{"type" : "Office", "number" : "909-555-7307"},
-                      {"type" : "Mobile", "number" : "415-555-1234"}]},
-      "Special Instructions" : null,
-      "AllowPartialShipment" : true,
-      "LineItems"            :
-        [{"ItemNumber" : 1,
-          "Part"       : {"Description" : "One Magic Christmas",
-                          "UnitPrice"   : 19.95,
-                          "UPCCode"     : 13131092899},
-          "Quantity"   : 9.0},
-         {"ItemNumber" : 2,
-          "Part"       : {"Description" : "Lethal Weapon",
-                          "UnitPrice"   : 19.95,
-                          "UPCCode"     : 85391628927},
-          "Quantity"   : 5.0}]}');
+- using [MLE Type Declarations](https://oracle-samples.github.io/mle-modules/)
+- creating short-lived branches to cover your ticket/work item
+- add extensions to VSCode, like
+  - Oracle SQL Developer Extension for VSCode
+  - prettier, biome, etc. for code formatting
+  - eslint, biome, etc. for linting your code
+  - Docker/Podman for your compose file management and local container management
+  - others
+- use the built-in terminal to run commands
 
-INSERT INTO j_purchaseorder
-  VALUES (
-    SYS_GUID(),
-    to_date('30-DEC-2014'),
-    '{"PONumber"             : 672,
-      "Reference"            : "SBELL-20141017",
-      "Requestor"            : "Sarah Bell",
-      "User"                 : "SBELL",
-      "CostCenter"           : "A50",
-      "ShippingInstructions" : {"name"    : "Sarah Bell",
-                                "Address" : {"street"  : "200 Sporting Green",
-                                             "city"    : "South San Francisco",
-                                             "state"   : "CA",
-                                             "zipCode" : 99236,
-                                             "country" : "United States of America"},
-                                "Phone"   : "983-555-6509"},
-      "Special Instructions" : "Courier",
-      "LineItems"            :
-        [{"ItemNumber" : 1,
-          "Part"       : {"Description" : "Making the Grade",
-                          "UnitPrice"   : 20,
-                          "UPCCode"     : 27616867759},
-          "Quantity"   : 8.0},
-         {"ItemNumber" : 2,
-          "Part"       : {"Description" : "Nixon",
-                          "UnitPrice"   : 19.95,
-                          "UPCCode"     : 717951002396},
-          "Quantity"   : 5},
-         {"ItemNumber" : 3,
-          "Part"       : {"Description" : "Eric Clapton: Best Of 1981-1999",
-                          "UnitPrice"   : 19.95,
-                          "UPCCode"     : 75993851120},
-          "Quantity"   : 5.0}]}');
-```
+When you are done writing your Typescript code you need to transpile it to JavaScript in preparation of the deployment. This is done via `npm run deploy`. This "script" action is defined in `package.json`. As you can see the deployment is facilitated by `utils/deploy.sh`. At the time of writing the deployment was hard-coded, future iterations of the code will use a tool to deploy arbitrary modules.
 
-## Example usage
+All you local changes should be done it a separate, short-lived branch that ends its existence with the ticket. Branches shouldn't contain too many work items or you'll risk not being able to merge into main within the work day.
 
-As soon as the TypeScript file has been transpiled to JavaScript it can be loaded as a MLE module, and used.
+### Details concerning the workflow
 
-```sql
-create or replace mle module blogpost_module
-language javascript as
+Once you are happy with your changes to the Typescript file you can save the file and deploy the linted, formatted, and transpiled version into the database. According to the supplied `tsconfig.json` the Typescript compiler expects input files in `src/typescript`. The transpiled files will end up in `src/javascript` - the latter is excluded from Git via `.gitignore` since artefacts aren't supposed to be stored in version control.
 
-// contents of the transpiled file here
-```
+In this simple example there is no need to bundle external, 3rd party libraries with your code, hence no mention of that step. More complex projects however can make use of module bundlers like [rollup](https://rollupjs.org/) or [esbuild](https://esbuild.github.io/) as well as many others.
 
-With the module created, you need to add a call specification: to make the JavaScript function available in SQL and PL/SQL
+Finally Oracle's [SQLcl](https://www.oracle.com/database/sqldeveloper/technologies/sqlcl/download/) `mle create-module` command is invoked to deploy the transpiled module in the database. This is the point where you typically run unit tests and/or integration tests against the code, etc.
 
-```sql
-create or replace procedure process_purchase_order(
-    po_number number
-) as mle module blogpost_module
-signature 'processPurchaseOrder';
-```
+If everything has gone to plan it's time to follow the workflow as described by [SQLcl projects](https://docs.oracle.com/en/database/oracle/sql-developer-command-line/25.1/sqcug/database-application-ci-cd.html). It's an opinionated workflow for database CI and has a proven track record for being robust and reliable.
 
-Let's try it!
+### CI/CD pipeline
 
-```sql
-SELECT
-    JSON_VALUE(po_document, '$.lastUpdate' DEFAULT 'does not yet exist' ON EMPTY) last_update
-FROM
-    j_purchaseorder po
-WHERE
-    po.po_document.PONumber = 672
-/
+After local testing has successfully completed as per the above step you can integrate your new code into the CI workflow by committing and pushing the branch to your _origin_. A CI pipeline might clone your CI database, deploy the changes, and run unit tests against the change. Once that passes, you can create a merge (or pull request, depending on platform) and integrate into your main branch.
 
-LAST_UPDATE           
-_____________________ 
-does not yet exist
+The entire process is discussed in [Implementing DevOps principles with Oracle Database](https://www.oracle.com/a/ocom/docs/database/implementing-devops-principles-with-oracle-database.pdf)
 
-BEGIN
-  process_purchase_order(672);
-end;
-/
+## Summary
 
-SELECT
-    JSON_VALUE(
-      po_document,
-      '$.lastUpdate' 
-      DEFAULT 'does not yet exist' ON EMPTY
-    ) last_update
-FROM
-    j_purchaseorder po
-WHERE
-    po.po_document.PONumber = 672
-/
-
-LAST_UPDATE                 
-___________________________ 
-2024-06-06T15:21:35.700Z
-```
-
-That was it - nice!
+Modern development techniques such as CI/CD and DevOps are applicable to database applications as much as they are to front-end applications. The stateful nature of database development requires some extra care, much of which is taken care off by the tools mentioned in this readme. Have fun coding!
