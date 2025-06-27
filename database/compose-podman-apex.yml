@@ -1,0 +1,41 @@
+# THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
+services:
+    oracle:
+        image: container-registry.oracle.com/database/free:23.8.0.0
+        ports:
+            - 1521:1521
+        environment:
+            - ORACLE_PWD=changeOnInstall
+        volumes:
+            - oradata-vol:/opt/oracle/oradata
+            - ./initialisation:/opt/oracle/scripts/startup:Z
+        networks:
+            - backend
+        healthcheck:
+            test: [ "CMD", "/opt/oracle/checkDBStatus.sh" ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+
+    ords:
+        depends_on:
+            oracle:
+                condition: service_healthy
+        image: container-registry.oracle.com/database/ords:25.1.1
+        environment:
+          - CONN_STRING=database_oracle_1/freepdb1
+          - ORACLE_PWD=changeOnInstall
+        ports:
+          - 8080:8080
+          - 8443:8443
+          - 27017:27017
+        volumes:
+            - ords-config-vol:/etc/ords/config
+            # - ./apex:/opt/oracle/apex:Z
+
+volumes:
+    oradata-vol:
+    ords-config-vol:
+
+networks:
+    backend:

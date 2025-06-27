@@ -9,7 +9,7 @@ This directory contains all the code used in my JavaScript blog posts at <https:
 
 | Project | Contents | Link to post |
 | -- | -- | -- |
-| database | {Podman,Docker} compose files to create a new Oracle Database Free 23ai instance | |
+| [database](database/README.md) | {Podman,Docker} compose files to create a new Oracle Database Free 23ai instance as well as an ORDS and/or APEX environment | |
 | [express-mle-javascript](./express-mle-javascript/readme.md) | Short example showing how to combine node-express and MLE/JavaScript | [Blog Post](https://martincarstenbach.com/2025/01/17/node-express-mle-javascript-example/) |
 | [graphql-simplified](./graphql-simplified/README.md) | Simplified version of the original GraphQL Example | [Blog Post](https://martincarstenbach.com/2024/06/06/creating-a-graphql-endpoint-within-the-database-redux/) |
 | [mle-typescript](./mle-typescript/README.md) | Example for migrating from plain JavaScript to TypeScript to make use of type-checking and linting | [Readme](./mle-typescript/README.md) |

@@ -1,20 +1,18 @@
 # THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
 services:
     oracle:
-        image: docker.io/gvenzl/oracle-free:23.7
+        image: container-registry.oracle.com/database/free:23.8.0.0
         ports:
             - 1521:1521
         environment:
             - ORACLE_PASSWORD_FILE=/run/secrets/oracle-passwd
-            - APP_USER=demouser
-            - APP_USER_PASSWORD_FILE=/run/secrets/app-passwd
         volumes:
             - oradata-vol:/opt/oracle/oradata
-            - ./initialisation:/container-entrypoint-initdb.d:Z
+            - ./initialisation:/opt/oracle/scripts/startup:Z
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "healthcheck.sh"]
+            test: [ "CMD", "/opt/oracle/checkDBStatus.sh" ]
             interval: 10s
             timeout: 5s
             retries: 10
@@ -31,6 +29,4 @@ networks:
 
 secrets:
     oracle-passwd:
-        external: true
-    app-passwd:
         external: true
