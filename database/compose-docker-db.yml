@@ -9,7 +9,7 @@ services:
         environment:
             - ORACLE_PASSWORD=changeOnInstall
             - APP_USER=demouser
-            - APP_USER_PASSWORD_FILE=demouser
+            - APP_USER_PASSWORD=demouser
         volumes:
             - oradata-vol:/opt/oracle/oradata
             - ./initialisation:/container-entrypoint-initdb.d
