@@ -1,27 +1,29 @@
 # THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
 services:
-  oracle:
-    image: container-registry.oracle.com/database/free:23.8.0.0
-    ports:
-      - 1521:1521
-    environment:
-      - ORACLE_PASSWORD=changeOnInstall
-      - ORACLE_PDB=freepdb1
-      - DBHOST=db
-    volumes:
-      - oradata-vol:/opt/oracle/oradata
-      - ./initialisation:/opt/oracle/scripts/startup
-    networks:
-      - backend
-    healthcheck:
-      test: [ "CMD", "/opt/oracle/checkDBStatus.sh" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 5s
+    oracle:
+        # the current image container-registry.oracle.com/database/free:23.8.0.0
+        # does not work on Debian/Ubuntu/Mint
+        image: docker.io/gvenzl/oracle-free:23.8
+        ports:
+            - 1521:1521
+        environment:
+            - ORACLE_PASSWORD=changeOnInstall
+            - APP_USER=demouser
+            - APP_USER_PASSWORD=demouser
+        volumes:
+            - oradata-vol:/opt/oracle/oradata
+            - ./initialisation:/container-entrypoint-initdb.d
+        networks:
+            - backend
+        healthcheck:
+            test: [ "CMD", "/opt/oracle/checkDBStatus.sh" ]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
 
 volumes:
-  oradata-vol:
+    oradata-vol:
 
 networks:
-  backend:
+    backend:
