@@ -1,14 +1,18 @@
 # THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
 services:
     oracle:
-        image: container-registry.oracle.com/database/free:23.8.0.0
+        # the current image container-registry.oracle.com/database/free:23.8.0.0
+        # does not work on Debian/Ubuntu/Mint
+        image: docker.io/gvenzl/oracle-free:23.8
         ports:
             - 1521:1521
         environment:
             - ORACLE_PASSWORD_FILE=/run/secrets/oracle-passwd
+            - APP_USER=demouser
+            - APP_USER_PASSWORD_FILE=/run/secrets/app-passwd
         volumes:
             - oradata-vol:/opt/oracle/oradata
-            - ./initialisation:/opt/oracle/scripts/startup:Z
+            - ./initialisation:/container-entrypoint-initdb.d:Z
         networks:
             - backend
         healthcheck:
@@ -29,4 +33,6 @@ networks:
 
 secrets:
     oracle-passwd:
+        external: true
+    app-passwd:
         external: true
