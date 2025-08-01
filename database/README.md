@@ -5,7 +5,12 @@ This directory contains compose files for `docker-compose` and `podman-compose` 
 - podman 5.4.0
 - podman-compose 1.4.0
 
-Oracle Linux 9.6 ships with too old a podman-compose release (1.0.6), make sure to install the current one into a venv, like so:
+Additional testing on Linux Mint 22 featuring
+
+- podman 4.9.3
+- podman-compose 1.4.0
+
+If your distribution ships with too old a podman-compose release (< 1.4), make sure to install the current one into a venv, like so:
 
 ```sh
 python3 -m venv .venv
@@ -14,7 +19,7 @@ pip3 install podman-compose
 podman-compose --version
 ```
 
-Podman-compose must report at least version 1.4.0.
+Podman-compose must report at least version 1.4.x.
 
 ## If "just a database" is all you need
 
@@ -23,13 +28,13 @@ Use either the following files to create an [Oracle Database 23ai Free](https://
 - compose-docker-db.yml
 - compose-podman-db.yml
 
-The latter requires you to create a [Podman secret](https://martincarstenbach.com/2022/12/19/podman-secrets-a-better-way-to-pass-environment-variables-to-containers/), **oracle-passwd**, to set the initial SYS and SYSTEM passwords. Docker doesn't support secrets in the same way, in that case make sure to change the passwords after the initial setup if that's important to you.
+The latter requires you to create a couple of [Podman secrets](https://martincarstenbach.com/2022/12/19/podman-secrets-a-better-way-to-pass-environment-variables-to-containers/), **oracle-passwd** and **app_passwd**, to set the initial SYS and SYSTEM passwords as well as the password for the application user used throughout. Docker doesn't support secrets in the same way, in that case make sure to change the passwords after the initial setup if that's important to you. Or change the file to source variables from an [`.env` file](https://martincarstenbach.com/2025/07/30/sourcing-environment-variables-from-env-in-compose/).
 
 Both compose files mount the initialisation directory into the database container, creating a demo account (demouser) for you to play with. This account is also referenced extensively on the blog.
 
 ## Oracle REST Data Services and/or APEX
 
-If you want to [REST-enable](https://www.oracle.com/ords) your database or create an [APEX](https://apex.oracle.com) development instance, you can use `compose-apex.yml` for a hands-free setup experience.
+If you want to [REST-enable](https://www.oracle.com/ords) your database or create an [APEX](https://apex.oracle.com) development instance, you can use `compose-podman-apex.yml` for a hands-free setup experience.
 
 ORDS will always be installed. If you want to additionally install APEX, make sure to [download APEX](https://www.oracle.com/tools/downloads/apex-downloads/) from Oracle's website, unzip it in `database/apex` and uncomment line 30 in the compose file to mount the installation directory into the ORDS container.
 
