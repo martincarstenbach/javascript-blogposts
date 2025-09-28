@@ -41,7 +41,11 @@ services:
             - 27017:27017
         volumes:
             - ords-config-vol:/etc/ords/config
+            # use this volume mount for the initial APEX installation
             # - ./apex:/opt/oracle/apex:Z
+            # once installed, uncomment the line above and remove the comment from the line below
+            # or else you might get runtime errors when patching APEX
+            # - ./apex/images:/opt/oracle/apex/images:Z
 
 volumes:
     oradata-vol:
