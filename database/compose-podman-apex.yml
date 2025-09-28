@@ -1,15 +1,14 @@
 # THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
 services:
     oracle:
-        # the current image container-registry.oracle.com/database/free:23.8.0.0
-        # does not work on Debian/Ubuntu/Mint
+
         image: docker.io/gvenzl/oracle-free:23.9
         ports:
             - 1521:1521
         environment:
-            - ORACLE_PASSWORD=changeOnInstall
+            - ORACLE_PASSWORD=${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
             - APP_USER=demouser
-            - APP_USER_PASSWORD=demouser
+            - APP_USER_PASSWORD=${APP_USER_PASSWORD:?Please provide a password for the application user}
         volumes:
             - oradata-vol:/opt/oracle/oradata
             - ./initialisation:/container-entrypoint-initdb.d:Z
@@ -32,7 +31,7 @@ services:
             - DBHOST=oracle
             - DBPORT=1521
             - DBSERVICENAME=freepdb1
-            - ORACLE_PWD=changeOnInstall
+            - ORACLE_PWD=${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
             - DEBUG=TRUE
         networks:
             - backend
@@ -42,7 +41,7 @@ services:
             - 27017:27017
         volumes:
             - ords-config-vol:/etc/ords/config
-            - ./apex:/opt/oracle/apex:Z
+            # - ./apex:/opt/oracle/apex:Z
 
 volumes:
     oradata-vol:
