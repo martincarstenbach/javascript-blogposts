@@ -3,3 +3,4 @@ node_modules
 database/apex
 .venv
 database/apex
+**/.env
