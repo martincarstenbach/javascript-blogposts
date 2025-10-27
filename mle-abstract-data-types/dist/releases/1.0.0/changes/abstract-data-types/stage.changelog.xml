@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+<include file="demouser/mle_modules/records_demo_module.sql" relativeToChangelogFile="true"/>
+<include file="demouser/mle_modules/rest_handler_module.sql" relativeToChangelogFile="true"/>
+<include file="demouser/mle_envs/blogpost_env.sql" relativeToChangelogFile="true"/>
+<include file="demouser/procedures/process_product_data.sql" relativeToChangelogFile="true"/>
+<include file="demouser/functions/get_product_details.sql" relativeToChangelogFile="true"/>
+</databaseChangeLog>
