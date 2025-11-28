@@ -15,7 +15,7 @@ services:
         networks:
             - backend
         healthcheck:
-            test: [ "CMD", "/opt/oracle/checkDBStatus.sh" ]
+            test: [ "CMD", "/opt/oracle/healthcheck.sh" ]
             interval: 10s
             timeout: 5s
             retries: 10
