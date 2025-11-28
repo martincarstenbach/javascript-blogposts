@@ -15,7 +15,7 @@ services:
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "healthcheck.sh"]
+            test: ["CMD", "/opt/oracle/healthcheck.sh"]
             interval: 10s
             timeout: 5s
             retries: 10
@@ -32,7 +32,7 @@ services:
             - DBPORT=1521
             - DBSERVICENAME=freepdb1
             - ORACLE_PWD=${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
-            - DEBUG=TRUE
+            - DEBUG=FALSE
         networks:
             - backend
         ports:
