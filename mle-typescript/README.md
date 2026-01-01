@@ -1,18 +1,18 @@
 # Multilingual Engine/Typescript example
 
-This little project demonstrates the workflow using [Typescript](https://www.typescriptlang.org/) to develop server-side JavaScript code, powered by [Multilingual Engine (MLE)](https://docs.oracle.com/en/database/oracle/oracle-database/23/mlejs/). It features a little application allowing multiple people to organise their to do lists. Each user can create categories for their lists. Each item on the to do list can have a priority associated with it. In the first iteration the database part is simulated. Time permitting a frontend will be added at a later stage
+This little project demonstrates the workflow using [Typescript](https://www.typescriptlang.org/) to develop server-side JavaScript code, powered by [Multilingual Engine (MLE)](https://docs.oracle.com/en/database/oracle/oracle-database/23/mlejs/). It features a little application allowing multiple people to organise their to do lists. Each user can create categories for their lists. Each item on the to do list can have a priority associated with it. In the first iteration the database part is simulated. Time permitting a frontend will be added at a later stage.
 
 The Typescript code in this example provides an API you can invoke, for example via [Oracle REST Data Services (ORDS)](https://www.oracle.com/ords) or [node-express](https://expressjs.com/) to perform typical CRUD operations for the main tables (users, categories, todo_list).
 
-## Typescript development and Oracle Database 23ai
+## Typescript development and Oracle AI Database 26ai
 
-Broadly speaking you follow these steps when writing MLE code in Typescript:
+Broadly speaking you follow these steps when writing server-side code in Typescript:
 
 - You develop your Typescript code locally using Visual Studio Code (VSCode) or a comparable editor
 - The IDE should offer convenience features like type checking, linting, formatting, ...
 - Thanks to the [MLE Type Declarations](https://oracle-samples.github.io/mle-modules/) you write more robust code that is less prone to runtime errors
 - Once the code is ready for local testing, use `npm run deploy` to deploy it
-- After the code has been deployed and tested locally it can be integrated into a CI/CD workflow as proposed by [SQLcl projects](https://docs.oracle.com/en/database/oracle/sql-developer-command-line/25.1/sqcug/introduction.html)
+- After the code has been deployed and tested locally it can be integrated into a CI/CD workflow
 
 The following sections provide additional details concerning these concepts.
 
@@ -42,13 +42,28 @@ In this simple example there is no need to bundle external, 3rd party libraries 
 
 Finally Oracle's [SQLcl](https://www.oracle.com/database/sqldeveloper/technologies/sqlcl/download/) `mle create-module` command is invoked to deploy the transpiled module in the database. This is the point where you typically run unit tests and/or integration tests against the code, etc.
 
-If everything has gone to plan it's time to follow the workflow as described by [SQLcl projects](https://docs.oracle.com/en/database/oracle/sql-developer-command-line/25.1/sqcug/database-application-ci-cd.html). It's an opinionated workflow for database CI and has a proven track record for being robust and reliable.
+If everything has gone to plan it's time to follow the workflow as described by [SQLcl projects](https://docs.oracle.com/en/database/oracle/sql-developer-command-line/25.4/sqcug/database-application-ci-cd.html). It's an opinionated workflow for database CI and has a proven track record for being robust and reliable.
 
 ### CI/CD pipeline
 
 After local testing has successfully completed as per the above step you can integrate your new code into the CI workflow by committing and pushing the branch to your _origin_. A CI pipeline might clone your CI database, deploy the changes, and run unit tests against the change. Once that passes, you can create a merge (or pull request, depending on platform) and integrate into your main branch.
 
 The entire process is discussed in [Implementing DevOps principles with Oracle Database](https://www.oracle.com/a/ocom/docs/database/implementing-devops-principles-with-oracle-database.pdf)
+
+### Testing
+
+If you would like to try the contents of this post for yourself, you first need a database to deploy against. Consider using the compose files in the project root's `database` directory. Once the database is up, create the `.env` file based on `.env.exemple`. Populate the values as appropriate.
+
+Next up, install the necessary NPM packages using `npm install`, making sure you're in the `mle-typescript` directory.
+
+Connect to your database using [SQLcl](https://oracle.com/sqlcl), and deploy the required tables. This repository uses plain Liquibase to do so, you should perhaps consider using SQLcl projects when working with your own code:
+
+```
+SQL> cd src/database
+SQL> lb update -changelog-file controller.xml
+```
+
+Once the tables are deployed, you can deploy the Typescript code using `npm run deploy` (your current working directory has to be `mle-typescript` for this to work). Refer to the `utils/deploy.sh` script for details.
 
 ## Summary
 

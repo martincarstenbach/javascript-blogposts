@@ -1,14 +1,14 @@
 {
-  "dependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "mle-js": "^23.7.0",
-    "typescript": "^5.7.3"
-  },
   "type": "module",
   "scripts": {
     "build": "npx tsc",
     "lint": "npx biome lint --verbose src/typescript",
     "format": "npx biome format --verbose src/typescript",
     "deploy": "bash utils/deploy.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.10",
+    "typescript": "^5.9.3",
+    "@types/mle-js": "github:oracle-samples/mle-modules#main"
   }
 }

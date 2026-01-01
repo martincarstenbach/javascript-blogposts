@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog 
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xmlns:n0="http://www.oracle.com/xml/ns/dbchangelog-ext" 
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog 
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+  <include file="table/categories_table.xml"/> 
+  <include file="table/todo_list_table.xml"/> 
+  <include file="table/users_table.xml"/> 
+  <include file="ref_constraint/fk_todo_list_categories_ref_constraint.xml"/> 
+  <include file="ref_constraint/fk_todo_list_users_ref_constraint.xml"/> 
+  <include file="index/i_todo_list_categories_index.xml"/> 
+  <include file="index/i_todo_list_users_index.xml"/> 
+</databaseChangeLog> 
