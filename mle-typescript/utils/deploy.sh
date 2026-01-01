@@ -9,15 +9,15 @@
 set -euxo pipefail
 
 # make sure we're in the correct directory
-[[ $(basename "$(pwd)") != mle-typescript ]] && {
+if [[ $(basename "$(pwd)") != mle-typescript ]]; then
     echo "ERR: something went wrong changing to the top level directory"
     exit 1
-}
+fi
 
 # connection details are typically stored in a cloud vault, lacking that
 # for this demo an .env file has to suffice. Created it 
 if [[ ! -f .env ]]; then
-    echo "ERR: .env file missing, create it based on .env.example"
+    echo "ERR: .env file missing, create it based on .env.example and try again"
     exit 1
 fi
 
@@ -27,12 +27,11 @@ fi
 source .env
 
 # simulate the CI pipeline and create the resulting JavaScript
-# file in src/javascript as per the 
-npm run lint && npm run format && npm run build
+# file in src/javascript. Connect to the database and deploy the
+# transpiled module. Requires SQLcl to be in the path
+npm run lint && npm run format && npm run build && sql "${DB_USERNAME}"/"${DB_PASSWORD}"@"${DB_CONNECTSTRING}" <<-EOF
 
-# now connect to the database and deploy the transpiled module
-sql "${DB_USERNAME}"/"${DB_PASSWORD}"@"${DB_CONNECTSTRING}" <<-EOF
-
+whenever sqlerror exit 99
 mle create-module -filename src/javascript/todos.js -module-name todos_module -replace
 
 EOF
