@@ -56,7 +56,7 @@ If you would like to try the contents of this post for yourself, you first need 
 
 Next up, install the necessary NPM packages using `npm install`, making sure you're in the `mle-typescript` directory.
 
-Connect to your database, and deploy the required tables. This repository uses plain Liquibase to do so, you should perhaps consider using SQLcl projects when working with your own code:
+Connect to your database using [SQLcl](https://oracle.com/sqlcl), and deploy the required tables. This repository uses plain Liquibase to do so, you should perhaps consider using SQLcl projects when working with your own code:
 
 ```
 SQL> cd src/database
