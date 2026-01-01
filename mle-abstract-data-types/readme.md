@@ -9,25 +9,11 @@ For a more verbose description of the code refer to the [corresponding blogpost]
 If you want to try the code in your playground/lab environment, you need [Oracle REST Data Services](https://www.oracle.com/database/technologies/appdev/rest.html) 25.3.0 or later and [Oracle AI Database 26ai](https://www.oracle.com/database/). It's easiest to follow the article by spinning up a couple of ephemeral container instances, like so:
 
 ```sh
-podman run --rm -d \
---name some-oracle \
---env ORACLE_PWD=${ORACLE_PWD} \
---publish 1521:1521 \
---network ${ORACLE_NET} \
-container-registry.oracle.com/database/free:23.26.0.0
-
-podman run --rm -d \
---name some-ords \
---network ${ORACLE_NET} \
---publish 8080:8080 \
---env DEBUG=TRUE --env DBHOST=some-oracle --env DBPORT=1521 --env DBSERVICENAME=freepdb1 --env ORACLE_PWD=${ORACLE_PWD} \
-container-registry.oracle.com/database/ords:25.3.0
+cd database
+podman compose -f compose-podman-ords-apex.yml -p database up -d
 ```
 
-> [!NOTE]  
-> Note that the above commands represent a hack until [Gerald Venzl releases his Container Images](https://hub.docker.com/r/gvenzl/oracle-free) - after which you should use the [compose files](../database/README.md) in the database directory. This repository will be updated eventually.
-
-As you can see, you need to provide a network name so that ORDS can interact with the database. You also have to provide an Oracle password. Once the database and ORDS have been instantiated, head over to the blog post to install Swingbench and perform the other tasks.
+If you use docker, replace each occurrence of `podman` with `docker` and you should be fine. Once the database and ORDS have been instantiated, head over to the blog post to install Swingbench and perform the other tasks.
 
 ## Deployment
 
