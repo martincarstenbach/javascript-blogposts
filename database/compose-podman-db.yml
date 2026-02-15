@@ -2,7 +2,7 @@
 services:
     oracle:
         
-        image: docker.io/gvenzl/oracle-free:23.26.0
+        image: docker.io/gvenzl/oracle-free:23.26.1
         ports:
             - 1521:1521
         environment:
