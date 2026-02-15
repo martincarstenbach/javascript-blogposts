@@ -6,9 +6,9 @@ services:
         ports:
             - 1521:1521
         environment:
-            - ORACLE_PASSWORD=${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
-            - APP_USER=demouser
-            - APP_USER_PASSWORD=${APP_USER_PASSWORD:?Please provide a password for the application user}
+            ORACLE_PASSWORD: ${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
+            APP_USER: demouser
+            APP_USER_PASSWORD: ${APP_USER_PASSWORD:?Please provide a password for the application user}
         volumes:
             - oradata-vol:/opt/oracle/oradata
             - ./initialisation:/container-entrypoint-initdb.d
@@ -28,11 +28,11 @@ services:
                 condition: service_healthy
         image: container-registry.oracle.com/database/ords:25.4.0
         environment:
-            - DBHOST=oracle
-            - DBPORT=1521
-            - DBSERVICENAME=freepdb1
-            - ORACLE_PWD=${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
-            - DEBUG=FALSE
+            DBHOST: oracle
+            DBPORT: 1521
+            DBSERVICENAME: freepdb1
+            ORACLE_PWD: ${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
+            DEBUG: FALSE
         networks:
             - backend
         ports:
