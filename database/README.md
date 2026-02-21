@@ -1,4 +1,4 @@
-# Compose files for Oracle Database 23ai
+# Compose files for Oracle AI Database 26ai
 
 This directory contains compose files for `docker-compose` and `podman-compose` respectively. Tested using Oracle Linux 9.6 on Linux x86-64 using
 
@@ -10,7 +10,7 @@ This directory contains compose files for `docker-compose` and `podman-compose` 
 Additional testing on Linux Mint 22 featuring
 
 - podman 4.9.3
-- podman-compose 1.4.0
+- podman-compose 1.5.0
 
 If your distribution ships with too old a podman-compose release (< 1.4), make sure to install the current one into a virtual environment, like so:
 
@@ -27,7 +27,7 @@ All of these files should work, at least they did so on my machine. If you find 
 
 ## If "just a database" is all you need
 
-Use either the following files to create an [Oracle Database 23ai Free](https://www.oracle.com/database/free/) instance:
+Use either the following files to create an [Oracle AI Database 26ai Free](https://www.oracle.com/database/free/) instance:
 
 - `compose-docker-db.yml`
 - `compose-podman-db.yml`
