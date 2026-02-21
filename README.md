@@ -12,11 +12,12 @@ This directory contains all the code used in my JavaScript blog posts at <https:
 | [database](database/README.md) | {Podman,Docker} compose files to create a new Oracle Database Free 23ai instance as well as an ORDS and/or APEX environment | |
 | [express-mle-javascript](./express-mle-javascript/readme.md) | Short example showing how to combine node-express and MLE/JavaScript | [Blog Post](https://martincarstenbach.com/2025/01/17/node-express-mle-javascript-example/) |
 | [graphql-simplified](./graphql-simplified/README.md) | Simplified version of the original GraphQL Example | [Blog Post](https://martincarstenbach.com/2024/06/06/creating-a-graphql-endpoint-within-the-database-redux/) |
-| [mle-typescript](./mle-typescript/README.md) | Example for migrating from plain JavaScript to TypeScript to make use of type-checking and linting | [Readme](./mle-typescript/README.md) |
+| [mle-abstract-data-types](mle-abstract-data-types/readme.md) | An example how to use PL/SQL Records and Collections in MLE/JavaScript | [Blog Post](https://martincarstenbach.com/2025/10/28/whats-new-with-mle-23-26-0-support-for-pl-sql-collections-and-records-pt-1/) |
+| [mle-ords-handlers-query-params](./mle-ords-handler-query-params/readme.md) | Code example showing how to parse query parameters in JavaScript based ORDS handlers | [Blog Post](https://martincarstenbach.com/2026/02/20/handling-query-parameters-in-javascript-based-ords-endpoints/) |
 | [mle-sqlcl-liquibase](./mle-sqlcl-liquibase/readme.md) | DEPRECATED Example how to use `runOraclescript` to create MLE/JavaScript modules. SQLcl now supports MLE modules natively | [Blog Post](https://martincarstenbach.com/2024/08/15/create-mle-javascript-modules-using-liquibase/) |
-| [timeout-polyfill](./timeout-polyfill/readme.md) | An example how to provide a polyfill for `setTimeout()` in MLE 23.8 | [Blog Post](https://martincarstenbach.com/2025/05/22/multilingual-engine-polyfill-timeouts-and-intervals/) |
+| [mle-typescript](./mle-typescript/README.md) | Example for migrating from plain JavaScript to TypeScript to make use of type-checking and linting | [Readme](./mle-typescript/README.md) |
 | [post-execution-debugging](post-execution-debugging/README.md) | An example how to use the new post-execution-debugging feature introduced in SQLDeveloper Extension for VSCode 25.3.0 | [Blog post](https://martincarstenbach.com/2025/10/07/intro-to-post-execution-debugging-in-sql-developer-for-vscode/) |
-| [abstract-data-types](mle-abstract-data-types/readme.md) | An example how to use PL/SQL Records and Collections in MLE/JavaScript | [Blog Post](https://martincarstenbach.com/2025/10/28/whats-new-with-mle-23-26-0-support-for-pl-sql-collections-and-records-pt-1/) |
+| [timeout-polyfill](./timeout-polyfill/readme.md) | An example how to provide a polyfill for `setTimeout()` in MLE 23.8 | [Blog Post](https://martincarstenbach.com/2025/05/22/multilingual-engine-polyfill-timeouts-and-intervals/) |
 
 ## Disclaimer
 
