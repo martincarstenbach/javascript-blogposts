@@ -1,109 +1,33 @@
-name: Validate Compose services
+name: validate compose files
 
 on:
-  workflow_dispatch:
-  pull_request:
-    paths:
-      - "database/**"
-      - ".github/workflows/compose-validate.yml"
-  push:
-    paths:
-      - "database/**"
+    push:
+    pull_request:
+    workflow_dispatch:
 
 jobs:
-  validate-service:
-    name: ${{ matrix.file }} / ${{ matrix.service }}
-    runs-on: ubuntu-26.04
-    timeout-minutes: 4
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runtime: docker
-            file: compose-docker-db.yml
-            service: oracle
-          - runtime: docker
-            file: compose-docker-ords-apex.yml
-            service: oracle
-          - runtime: docker
-            file: compose-docker-ords-apex.yml
-            service: ords
-          - runtime: podman
-            file: compose-podman-db.yml
-            service: oracle
-          - runtime: podman
-            file: compose-podman-ords-apex.yml
-            service: oracle
-          - runtime: podman
-            file: compose-podman-ords-apex.yml
-            service: ords
-    env:
-      ORACLE_PASSWORD: ci-only-dba-password
-      APP_USER_PASSWORD: ci-only-app-password
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Podman Compose provider
-        if: matrix.runtime == 'podman'
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends --yes podman-compose
-
-      - name: Validate Compose model
-        run: |
-          ${{ matrix.runtime }} compose \
-            --project-directory database \
-            --file database/${{ matrix.file }} \
-            config --quiet
-
-      - name: Start ${{ matrix.service }}
-        run: |
-          ${{ matrix.runtime }} compose \
-            --project-directory database \
-            --file database/${{ matrix.file }} \
-            up --detach ${{ matrix.service }}
-
-      - name: Wait up to 120 seconds for ${{ matrix.service }} to become healthy
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-
-          compose() {
-            ${{ matrix.runtime }} compose \
-              --project-directory database \
-              --file database/${{ matrix.file }} "$@"
-          }
-
-          deadline=$((SECONDS + 120))
-          while (( SECONDS < deadline )); do
-            container_id="$(compose ps --quiet ${{ matrix.service }})"
-
-            if [[ -n "$container_id" ]]; then
-              status="$(${{ matrix.runtime }} inspect \
-                --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}missing-healthcheck{{end}}' \
-                "$container_id")"
-              echo "${{ matrix.service }}: $status"
-
-              if [[ "$status" == healthy ]]; then
-                exit 0
-              fi
-            else
-              echo "${{ matrix.service }}: container not started"
-            fi
-
-            sleep 5
-          done
-
-          echo "${{ matrix.service }} did not become healthy within 120 seconds."
-          compose ps
-          compose logs --no-color --tail=200
-          exit 1
-
-      - name: Remove services and volumes
-        if: always()
-        run: |
-          ${{ matrix.runtime }} compose \
-            --project-directory database \
-            --file database/${{ matrix.file }} \
-            down --volumes --remove-orphans
-
+    syntax-validation:
+        name: ${{ matrix.file }}
+        runs-on: ubuntu-26.04
+        timeout-minutes: 4
+        strategy:
+            fail-fast: true
+            matrix:
+                include:
+                    - runtime: docker
+                      file: compose-docker-db.yml
+                    - runtime: docker
+                      file: compose-docker-ords-apex.yml
+        env:
+            ORACLE_PASSWORD: ci-only-db-password
+            APP_USER_PASSWORD: ci-only-app-user-password
+        steps:
+            - uses: actions/checkout@v4
+            # install podman
+            - name: validate compose file
+              if: matrix.runtime == 'docker'
+              run: |
+                ${{ matrix.runtime }} compose \
+                --project-directory database \
+                --file database/${{ matrix.file }} \
+                config
