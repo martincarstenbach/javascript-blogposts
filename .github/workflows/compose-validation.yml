@@ -6,7 +6,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    compose-file-validation:
+    podman-compose-file-validation:
         name: ${{ matrix.file }}
         runs-on: ubuntu-26.04
         timeout-minutes: 4
@@ -14,51 +14,87 @@ jobs:
             fail-fast: true
             matrix:
                 include:
-                    - runtime: docker
-                      file: compose-docker-db.yml
-                    - runtime: docker
-                      file: compose-docker-ords-apex.yml
-                    - runtime: podman
-                      file: compose-podman-db.yml
-                    - runtime: podman
-                      file: compose-podman-ords-apex.yml
+                    - file: compose-podman-db.yml
+                    - file: compose-podman-ords-apex.yml
         env:
             ORACLE_PASSWORD: ci-only-db-password
             APP_USER_PASSWORD: ci-only-app-user-password
         steps:
             - uses: actions/checkout@v7
             - name: install podman compose
-              if: matrix.runtime == 'podman'
               run: |
                 sudo apt-get update
                 sudo apt-get install --yes --no-install-recommends podman-compose
-            - name: validate docker compose file
-              if: matrix.runtime == 'docker'
-              run: |
-                ${{ matrix.runtime }} compose \
-                --project-directory database \
-                --file database/${{ matrix.file }} \
-                config
+                podman compose --version
             - name: validate podman compose file
-              if: matrix.runtime == 'podman'
               run: |
-                ${{ matrix.runtime }} compose \
+                podman compose \
                 --project-directory database \
                 --file database/${{ matrix.file }} \
                 config
-            - name: start services in ${{ matrix.file }}
-              if: matrix.runtime == 'docker'
+            - name: start services in ${{ matrix.file }} using podman compose
               run: |
-                ${{ matrix.runtime }} compose \
+                podman compose \
                 --project-directory database \
                 --file database/${{ matrix.file }} \
                 up --detach
-            - name: ensure service health
+
+    docker-compose-file-validation:
+        name: ${{ matrix.file }}
+        runs-on: ubuntu-26.04
+        timeout-minutes: 4
+        strategy:
+            fail-fast: true
+            matrix:
+                include:
+                    - file: compose-docker-db.yml
+                    - file: compose-docker-ords-apex.yml
+        env:
+            ORACLE_PASSWORD: ci-only-db-password
+            APP_USER_PASSWORD: ci-only-app-user-password
+        steps:
+            - uses: actions/checkout@v7
+            - name: validate docker compose file
+              run: |
+                docker compose \
+                --project-directory database \
+                --file database/${{ matrix.file }} \
+                config
+            - name: start services in ${{ matrix.file }} using docker compose
+              run: |
+                docker compose \
+                --project-directory database \
+                --file database/${{ matrix.file }} \
+                up --detach
+            - name: start services in ${{ matrix.file }} using podman compose
+              run: |
+                docker compose \
+                --project-directory database \
+                --file database/${{ matrix.file }} \
+                up --detach
+    
+    service-health-validation:
+        name: ${{ matrix.file }}
+        runs-on: ubuntu-26.04
+        strategy:
+            fail-fast: true
+            matrix:
+                include:
+                    - file: compose-podman-db.yml
+                      runtime: podman
+                    - file: compose-podman-ords-apex.yml
+                      runtime: podman
+                    - file: compose-docker-db.yml
+                      runtime: docker
+                    - file: compose-docker-ords-apex.yml
+                      runtime: docker
+        steps:
+            - name: ensure service health in file ${{ matrix.file }}
               shell: bash
               run: |
                 set -Eeuo pipefail
 
-                # Keep Compose arguments in one helper so status and log commands
+                # Keep compose arguments in one helper so status and log commands
                 # use the exact same file and project directory as `up`.
                 compose() {
                     ${{ matrix.runtime }} compose \
@@ -66,34 +102,45 @@ jobs:
                     --file database/${{ matrix.file }} "$@"
                 }
 
+                # Obtain the expected service names from the selected Compose file;
+                # this automatically covers services added in future file changes.
+                mapfile -t services < <(compose config --services)
                 deadline=$((SECONDS + 120))
                 while (( SECONDS < deadline )); do
-                    container_id="$(compose ps --quiet ${{ matrix.service }})"
+                    unhealthy=0
 
-                    # A missing ID means Compose did not create the requested service
-                    # yet (or it exited before the probe could inspect it).
+                    for service in "${services[@]}"; do
+                    container_id="$(compose ps --quiet "$service")"
+
+                    # A missing ID means Compose did not create this service yet (or
+                    # it exited before the probe could inspect it).
                     if [[ -n "$container_id" ]]; then
-                    # A container without a healthcheck is explicitly treated as a
-                    # failure rather than being mistaken for a healthy container.
-                    status="$(${{ matrix.runtime }} inspect \
+                        # A container without a healthcheck is explicitly treated as a
+                        # failure rather than being mistaken for a healthy container.
+                        status="$(${{ matrix.runtime }} inspect \
                         --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}missing-healthcheck{{end}}' \
                         "$container_id")"
-                    echo "${{ matrix.service }}: $status"
+                        echo "$service: $status"
 
-                    if [[ "$status" == healthy ]]; then
-                        exit 0
-                    fi
+                        if [[ "$status" != healthy ]]; then
+                        unhealthy=1
+                        fi
                     else
-                    echo "${{ matrix.service }}: container not started"
+                        echo "$service: container not started"
+                        unhealthy=1
+                    fi
+                    done
+
+                    if (( unhealthy == 0 )); then
+                    exit 0
                     fi
 
                     sleep 5
                 done
 
-                # Make the failure actionable: the job title identifies the target
-                # service, `ps` shows all Compose container states, and the final
-                # 200 log lines show the startup failure without flooding the log.
-                echo "${{ matrix.service }} did not become healthy within 120 seconds."
+                # Make the failure actionable: `ps` prints a state for every service
+                # in this Compose file, followed by the final 200 log lines.
+                echo "One or more services did not become healthy within 120 seconds."
                 compose ps
                 compose logs --no-color --tail=200
                 exit 1
