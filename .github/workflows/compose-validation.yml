@@ -11,7 +11,7 @@ jobs:
         # startup, health checks, diagnostics, and cleanup must therefore all
         # happen in this job; containers cannot be shared between jobs.
         name: ${{ matrix.runtime }} - ${{ matrix.file }}
-        runs-on: ubuntu-26.04
+        runs-on: ubuntu-24.04
         timeout-minutes: 10
         defaults:
             # podman-compose does not support Docker Compose's
@@ -41,7 +41,7 @@ jobs:
             PODMAN_COMPOSE_PROVIDER: podman-compose
         steps:
             - name: check out repository
-              uses: actions/checkout@v7
+              uses: actions/checkout@v6
 
             # Podman implements `podman compose` through an external provider.
             # Docker jobs skip this step and use the preinstalled Compose plugin.
@@ -84,18 +84,24 @@ jobs:
                   while (( SECONDS < deadline )); do
                       unhealthy=0
 
-                      for service in "${services[@]}"; do
-                          container_id="$(compose ps --quiet "$service")"
+                      # podman-compose cannot filter `ps` by service name.
+                      # Query the complete Compose project and map containers
+                      # back to services using the canonical Compose label.
+                      declare -A status_by_service=()
+                      mapfile -t container_ids < <(compose ps --quiet)
 
-                          if [[ -z "$container_id" ]]; then
-                              echo "$service: container not started"
-                              unhealthy=1
-                              continue
-                          fi
-
+                      for container_id in "${container_ids[@]}"; do
+                          service="$(${{ matrix.runtime }} inspect \
+                              --format '{{index .Config.Labels "com.docker.compose.service"}}' \
+                              "$container_id")"
                           status="$(${{ matrix.runtime }} inspect \
                               --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}missing-healthcheck{{end}}' \
                               "$container_id")"
+                          status_by_service["$service"]="$status"
+                      done
+
+                      for service in "${services[@]}"; do
+                          status="${status_by_service[$service]:-container-not-started}"
                           echo "$service: $status"
 
                           if [[ "$status" != healthy ]]; then
