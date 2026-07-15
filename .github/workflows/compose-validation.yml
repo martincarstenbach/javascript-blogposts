@@ -11,8 +11,14 @@ jobs:
         # startup, health checks, diagnostics, and cleanup must therefore all
         # happen in this job; containers cannot be shared between jobs.
         name: ${{ matrix.runtime }} - ${{ matrix.file }}
-        runs-on: ubuntu-26.04
+        runs-on: ubuntu-24.04
         timeout-minutes: 10
+        defaults:
+            # podman-compose does not support Docker Compose's
+            # --project-directory option. Run all shell steps from the
+            # directory containing the selected Compose file instead.
+            run:
+                working-directory: database
         strategy:
             # Let every Compose file finish so one failure does not hide the
             # results from the other three files.
@@ -35,7 +41,7 @@ jobs:
             PODMAN_COMPOSE_PROVIDER: podman-compose
         steps:
             - name: check out repository
-              uses: actions/checkout@v7
+              uses: actions/checkout@v6
 
             # Podman implements `podman compose` through an external provider.
             # Docker jobs skip this step and use the preinstalled Compose plugin.
@@ -49,17 +55,15 @@ jobs:
             - name: validate ${{ matrix.file }}
               run: |
                   ${{ matrix.runtime }} compose \
-                      --project-directory database \
-                      --file database/${{ matrix.file }} \
-                      config --quiet
+                      --file ${{ matrix.file }} \
+                      config
 
             # Start every service declared in the selected Compose file. This
             # step and the health check below run on the same runner.
             - name: start services in ${{ matrix.file }}
               run: |
                   ${{ matrix.runtime }} compose \
-                      --project-directory database \
-                      --file database/${{ matrix.file }} \
+                      --file ${{ matrix.file }} \
                       up --detach
 
             - name: ensure all services in ${{ matrix.file }} are healthy
@@ -69,8 +73,7 @@ jobs:
 
                   compose() {
                       ${{ matrix.runtime }} compose \
-                          --project-directory database \
-                          --file database/${{ matrix.file }} "$@"
+                          --file ${{ matrix.file }} "$@"
                   }
 
                   # Read the expected service names from the Compose model so
@@ -119,19 +122,16 @@ jobs:
               if: always()
               run: |
                   ${{ matrix.runtime }} compose \
-                      --project-directory database \
-                      --file database/${{ matrix.file }} \
+                      --file ${{ matrix.file }} \
                       ps || true
                   ${{ matrix.runtime }} compose \
-                      --project-directory database \
-                      --file database/${{ matrix.file }} \
+                      --file ${{ matrix.file }} \
                       logs --no-color --tail=200 || true
 
             - name: cleanup
               if: always()
               run: |
                   ${{ matrix.runtime }} compose \
-                      --project-directory database \
-                      --file database/${{ matrix.file }} \
+                      --file ${{ matrix.file }} \
                       down --volumes --remove-orphans || true
 
