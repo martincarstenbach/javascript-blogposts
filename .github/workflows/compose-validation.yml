@@ -6,7 +6,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    syntax-validation:
+    compose-file-validation:
         name: ${{ matrix.file }}
         runs-on: ubuntu-26.04
         timeout-minutes: 4
@@ -46,3 +46,61 @@ jobs:
                 --project-directory database \
                 --file database/${{ matrix.file }} \
                 config
+            - name: start services in ${{ matrix.file }}
+              if: matrix.runtime == 'docker'
+              run: |
+                ${{ matrix.runtime }} compose \
+                --project-directory database \
+                --file database/${{ matrix.file }} \
+                up --detach
+            - name: ensure service health
+              shell: bash
+              run: |
+                set -Eeuo pipefail
+
+                # Keep Compose arguments in one helper so status and log commands
+                # use the exact same file and project directory as `up`.
+                compose() {
+                    ${{ matrix.runtime }} compose \
+                    --project-directory database \
+                    --file database/${{ matrix.file }} "$@"
+                }
+
+                deadline=$((SECONDS + 120))
+                while (( SECONDS < deadline )); do
+                    container_id="$(compose ps --quiet ${{ matrix.service }})"
+
+                    # A missing ID means Compose did not create the requested service
+                    # yet (or it exited before the probe could inspect it).
+                    if [[ -n "$container_id" ]]; then
+                    # A container without a healthcheck is explicitly treated as a
+                    # failure rather than being mistaken for a healthy container.
+                    status="$(${{ matrix.runtime }} inspect \
+                        --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}missing-healthcheck{{end}}' \
+                        "$container_id")"
+                    echo "${{ matrix.service }}: $status"
+
+                    if [[ "$status" == healthy ]]; then
+                        exit 0
+                    fi
+                    else
+                    echo "${{ matrix.service }}: container not started"
+                    fi
+
+                    sleep 5
+                done
+
+                # Make the failure actionable: the job title identifies the target
+                # service, `ps` shows all Compose container states, and the final
+                # 200 log lines show the startup failure without flooding the log.
+                echo "${{ matrix.service }} did not become healthy within 120 seconds."
+                compose ps
+                compose logs --no-color --tail=200
+                exit 1
+            - name: cleanup
+              if: always()
+              run: |
+                ${{ matrix.runtime }} compose \
+                --project-directory database \
+                --file database/${{ matrix.file }} \
+                down --volumes --remove-orphans
