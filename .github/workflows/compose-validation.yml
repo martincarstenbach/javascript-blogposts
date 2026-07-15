@@ -18,14 +18,29 @@ jobs:
                       file: compose-docker-db.yml
                     - runtime: docker
                       file: compose-docker-ords-apex.yml
+                    - runtime: podman
+                      file: compose-podman-db.yml
+                    - runtime: podman
+                      file: compose-podman-ords-apex.yml
         env:
             ORACLE_PASSWORD: ci-only-db-password
             APP_USER_PASSWORD: ci-only-app-user-password
         steps:
-            - uses: actions/checkout@v4
-            # install podman
-            - name: validate compose file
+            - uses: actions/checkout@v7
+            - name: install podman compose
+              if: matrix.runtime == 'podman'
+              run: |
+                sudo apt-get update
+                sudo apt-get install --yes --no-install-recommends podman-compose
+            - name: validate docker compose file
               if: matrix.runtime == 'docker'
+              run: |
+                ${{ matrix.runtime }} compose \
+                --project-directory database \
+                --file database/${{ matrix.file }} \
+                config
+            - name: validate podman compose file
+              if: matrix.runtime == 'podman'
               run: |
                 ${{ matrix.runtime }} compose \
                 --project-directory database \
