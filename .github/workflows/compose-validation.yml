@@ -1,8 +1,10 @@
 name: validate compose files
 
 on:
-    push:
     pull_request:
+        paths:
+            - "database/**"
+            - ".github/workflows/compose-validation.yml"
     workflow_dispatch:
 
 jobs:
