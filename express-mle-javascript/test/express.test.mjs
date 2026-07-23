@@ -1,5 +1,4 @@
-import mocha from "mocha";
-import { assert } from "chai";
+import { describe, it, expect } from "vitest";
 
 let lastMessageId;
 
@@ -16,11 +15,10 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.deepEqual(
-				data,
-				{ username: "APP_USER", release: "23.6.0.24.10" },
-				"you should be connect as APP_USER to a 23.6 database",
-			);
+			expect(data).toEqual({
+				username: "DEMOUSER",
+				release: "23.26.2.0.0",
+			});
 		});
 	});
 
@@ -31,7 +29,7 @@ describe("All Unit Tests", () => {
 		it("should post a message to the database successfully", async () => {
 			const response = await fetch("http://localhost:3000/api/messages", {
 				method: "POST",
-				body: JSON.stringify({ message: "posted via mocha" }),
+				body: JSON.stringify({ message: "posted via vitest" }),
 				headers: {
 					"Content-Type": "application/json",
 				},
@@ -42,14 +40,9 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-
 			lastMessageId = data.messageId;
 
-			assert.equal(
-				data.status,
-				"success",
-				"unknown error when inserting a message into the database",
-			);
+			expect(data.status).toBe("success");
 		});
 
 		/**
@@ -69,11 +62,7 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.equal(
-				data.status,
-				"error",
-				"the insert didn't generate an error although it should have",
-			);
+			expect(data.status).toBe("error");
 		});
 	});
 
@@ -89,7 +78,7 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.isAtLeast(data.length, 1, "not a single message found");
+			expect(data.length).toBeGreaterThanOrEqual(1);
 		});
 	});
 
@@ -107,7 +96,7 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.isAtLeast(data.length, 1, "not a single message found");
+			expect(data.length).toBeGreaterThanOrEqual(1);
 		});
 
 		/**
@@ -123,11 +112,7 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.equal(
-				data.status,
-				"error",
-				"somehow the database managed to convert a string to a number that cannot be converted",
-			);
+			expect(data.status).toBe("error");
 		});
 
 		/**
@@ -141,11 +126,7 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.equal(
-				data.length,
-				0,
-				"somehow the database managed to fetch message with ID -1 which should be impossible",
-			);
+			expect(data.length).toBe(0);
 		});
 	});
 
@@ -166,11 +147,7 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.equal(
-				data.status,
-				"success",
-				`somehow the database failed to delete message ${lastMessageId}`,
-			);
+			expect(data.status).toBe("success");
 		});
 
 		/**
@@ -189,11 +166,7 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.equal(
-				data.status,
-				"error",
-				"somehow the database managed to delete a message that has 'notANumber' as its pk",
-			);
+			expect(data.status).toBe("error");
 		});
 
 		/**
@@ -209,11 +182,7 @@ describe("All Unit Tests", () => {
 			}
 
 			const data = await response.json();
-			assert.equal(
-				data.status,
-				"error",
-				"somehow the database managed to delete a message that has 'notANumber' as its pk",
-			);
+			expect(data.status).toBe("error");
 		});
 	});
 });

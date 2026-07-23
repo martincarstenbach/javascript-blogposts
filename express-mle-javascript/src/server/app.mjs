@@ -18,14 +18,19 @@ const prefix = "/api/messages";
  * Get database session info
  */
 app.get("/api/info", async (_req, res, next) => {
+	let connection;
 	try {
-		const connection = await db.getConnection();
+		connection = await db.getConnection();
 
 		const result = await connection.execute("select get_db_details as details");
 
 		res.send(result.rows[0].DETAILS);
 	} catch (error) {
 		next(error);
+	} finally {
+		if (connection) {
+			await connection.close();
+		}
 	}
 });
 
@@ -33,14 +38,19 @@ app.get("/api/info", async (_req, res, next) => {
  * Get all messages
  */
 app.get(prefix, async (_req, res, next) => {
+	let connection;
 	try {
-		const connection = await db.getConnection();
+		connection = await db.getConnection();
 
 		const result = await connection.execute("select get_messages as data");
 
 		res.send(result.rows[0].DATA);
 	} catch (error) {
 		next(error);
+	} finally {
+		if (connection) {
+			await connection.close();
+		}
 	}
 });
 
@@ -57,13 +67,14 @@ app.get(`${prefix}/:id`, async (req, res, next) => {
 	if (isNaN(id)) {
 		res.send({
 			status: "error",
-			details: "please provide a valid number",
+			details: `please provide a valid number, you sent ${id}`,
 		});
 		return;
 	}
 
+	let connection;
 	try {
-		const connection = await db.getConnection();
+		connection = await db.getConnection();
 
 		const result = await connection.execute(
 			"select get_message_by_id(:id) as data",
@@ -73,6 +84,10 @@ app.get(`${prefix}/:id`, async (req, res, next) => {
 		res.send(result.rows[0].DATA);
 	} catch (error) {
 		next(error);
+	} finally {
+		if (connection) {
+			await connection.close();
+		}
 	}
 });
 
@@ -89,8 +104,9 @@ app.post(prefix, async (req, res, next) => {
 		return;
 	}
 
+	let connection;
 	try {
-		const connection = await db.getConnection();
+		connection = await db.getConnection();
 
 		const result = await connection.execute(
 			"begin process_data(:message, :success, :insertedId); end;",
@@ -130,6 +146,10 @@ app.post(prefix, async (req, res, next) => {
 		});
 	} catch (error) {
 		next(error);
+	} finally {
+		if (connection) {
+			await connection.close();
+		}
 	}
 });
 
@@ -143,13 +163,14 @@ app.delete(`${prefix}/:id`, async (req, res, next) => {
 	if (isNaN(id)) {
 		res.send({
 			status: "error",
-			details: "please provide a valid number",
+			details: `please provide a valid number, you sent ${id}`,
 		});
 		return;
 	}
 
+	let connection;
 	try {
-		const connection = await db.getConnection();
+		connection = await db.getConnection();
 
 		const result = await connection.execute(
 			"begin delete_message(:id, :success); end;",
@@ -182,6 +203,10 @@ app.delete(`${prefix}/:id`, async (req, res, next) => {
 		});
 	} catch (error) {
 		next(error);
+	} finally {
+		if (connection) {
+			await connection.close();
+		}
 	}
 });
 
