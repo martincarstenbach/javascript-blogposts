@@ -1,4 +1,4 @@
-import { assert } from "chai";
+import { describe, it, expect } from "vitest";
 
 // consciously selecting the generated output over the src directory
 // this way the test is more meaningful and catches issues with the
@@ -7,22 +7,19 @@ import { graphQLQuery } from "../dist/bundle.js";
 
 describe("All Unit Tests", () => {
 	describe("Connection details", () => {
-		it("The database username must not be undefined", async () => {
-			const username = process.env.USER;
-
-			assert.isDefined(username);
+		it("The database username must not be undefined", () => {
+			const username = process.env.DB_USERNAME;
+			expect(username).toBeDefined();
 		});
 
-		it("The database password must not be undefined", async () => {
-			const password = process.env.PASSWORD;
-
-			assert.isDefined(password);
+		it("The database password must not be undefined", () => {
+			const password = process.env.DB_PASSWORD;
+			expect(password).toBeDefined();
 		});
 
-		it("The database connection string must not be undefined", async () => {
-			const connectionstring = process.env.CONNECTION_STRING;
-
-			assert.isDefined(connectionstring);
+		it("The database connection string must not be undefined", () => {
+			const connectionString = process.env.DB_CONNECTION_STRING;
+			expect(connectionString).toBeDefined();
 		});
 	});
 
@@ -31,12 +28,13 @@ describe("All Unit Tests", () => {
 			const expectedResult = {
 				data: { getLocationById: { city: "Roma", country_id: "IT" } },
 			};
+
 			const result = await graphQLQuery(
 				"query locById($id: Int) { getLocationById(id: $id) { city country_id } }",
 				{ id: 1000 },
 			);
 
-			assert.deepEqual(result, expectedResult);
+			expect(result).toEqual(expectedResult);
 		});
 
 		it("Number of locations must be 23", async () => {
@@ -44,15 +42,7 @@ describe("All Unit Tests", () => {
 				"query { getAllLocations { city country_id } }",
 			);
 
-			assert.equal(result.data.getAllLocations.length, 23);
-		});
-
-		it("Number of locations must be 23", async () => {
-			const result = await graphQLQuery(
-				"query { getAllLocations { city country_id } }",
-			);
-
-			assert.equal(result.data.getAllLocations.length, 23);
+			expect(result.data.getAllLocations.length).toBe(23);
 		});
 
 		it("Number of US locations must be 4", async () => {
@@ -61,7 +51,7 @@ describe("All Unit Tests", () => {
 				{ country_id: "US" },
 			);
 
-			assert.equal(result.data.getLocation.length, 4);
+			expect(result.data.getLocation.length).toBe(4);
 		});
 	});
 });
