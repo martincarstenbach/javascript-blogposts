@@ -5,9 +5,6 @@
  *
  * It allows stand-alone testing as well as deployment against the database.
  *
- * - stand-alone test: see standalone.js
- * - database test: deploy the bundle as described in the readme.
- *
  * @returns [IConnection || Connection] a connection to the database
  */
 async function getConn() {
@@ -18,9 +15,9 @@ async function getConn() {
 	}
 	// this is most likely node-oracledb
 	if (
-		process.env.USER === undefined ||
-		process.env.PASSWORD === undefined ||
-		process.env.CONNECTION_STRING === undefined
+		process.env.DB_USERNAME === undefined ||
+		process.env.DB_PASSWORD === undefined ||
+		process.env.DB_CONNECTION_STRING === undefined
 	) {
 		throw new Error(
 			"provide username, password and connection string as environment variables",
@@ -31,9 +28,9 @@ async function getConn() {
 	global.oracledb = oracledb;
 
 	const connection = await oracledb.getConnection({
-		user: process.env.USER,
-		password: process.env.PASSWORD,
-		connectString: process.env.CONNECTION_STRING,
+		user: process.env.DB_USERNAME,
+		password: process.env.DB_PASSWORD,
+		connectString: process.env.DB_CONNECTION_STRING,
 	});
 
 	return connection;

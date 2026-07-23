@@ -5,11 +5,14 @@
 		"@rollup/plugin-commonjs": "^29.0.3",
 		"@rollup/plugin-node-resolve": "^16.0.3",
 		"oracledb": "^7.0.1",
-		"rollup": "^4.62.2"
+		"rollup": "^4.62.2",
+		"vitest": "^4.1.10"
 	},
 	"dependencies": {
 		"@graphql-tools/schema": "^10.0.38",
-		"dotenv": "^17.4.2",
-		"vitest": "^4.1.10"
+		"dotenv": "^17.4.2"
+	},
+	"scripts": {
+		"test": "vitest run test"
 	}
 }
