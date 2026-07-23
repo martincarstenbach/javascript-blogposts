@@ -1,20 +1,24 @@
 # Simplified GraphQL Example
 
-This folder contains the code necessary to run GraphQL queries from within an [Oracle Database Free](https://www.oracle.com/database/free/) instance. It extends an earlier example using the GraphQL Reference implementation to perform GraphQL queries. Please refer to the [blog post](https://martincarstenbach.com/2024/06/06/creating-a-graphql-endpoint-within-the-database-redux/) for further details.
+This folder contains the code necessary to run GraphQL queries from within an [Oracle Database Free](https://www.oracle.com/database/free/) instance. It extends an earlier example, this time however it uses the _GraphQL Reference implementation_ to perform GraphQL queries. Please refer to the [blog post](https://martincarstenbach.com/2024/06/06/creating-a-graphql-endpoint-within-the-database-redux/) for further details.
 
-## Version
+Note that you quite a few things changed in the meantime: GraphQL support has been added to Oracle AI Database 26ai, you don't need to use this code. More details [can be found in the documentation](https://docs.oracle.com/en/database/oracle/oracle-database/26/gphql/oracle-ai-database-support-graphql.html)
+
+## Versions Used
 
 The code was tested using the following components:
 
-- Oracle Database 23ai (Free) on Linux x86-64 (version 23.6)
-- Node v20 (LTS "Iron")
+- Oracle Database 23ai (Free) on Linux x86-64 (version 23.26.2)
+- Node v24 (LTS "krypton")
 - Node packages as per `package.json`
 
 If you detect problems with the code, kindly file an issue. You may also have to update the software releases, this code acts as an example and isn't maintained on a regular basis.
 
 ## Using GraphQL in Oracle Database Free
 
-After cloning this directory you need to install the NPM modules first, using `npm install`. The next step is to create the `bundle.js` file. This is a job for [Rollup](https://rollupjs.org/). Create the `bundle.js` like so:
+You need a database to deploy the code against. The easiest way is to use the [docker](../database/compose-docker-db.yml) or [podman](../database/compose-podman-db.yml) compose file. You also need to deploy the 2 scripts in the `../database/initialisation` folder to your demo account. This is done automagically by the aforementioned compose files.
+
+Start by installing the NPM modules first, using `npm install`. The next step is to create the `bundle.js` file. This is a job for [Rollup](https://rollupjs.org/). Create the `bundle.js` like so:
 
 ```sh
 npx rollup -c
@@ -23,11 +27,11 @@ npx rollup -c
 The resulting `dist/bundle.js` file can be loaded into the Oracle Database Free instance as `GRAPHQL_ENDPOINT_MODULE`. Use a recent [SQLcl](https://www.oracle.com/database/sqldeveloper/technologies/sqlcl/) version to do so. Provided you used the [compose file shippping with this repo](../database/compose.yml) you can connect to the database using the `demouser` account and load the module:
 
 ```
-./sql demouser@localhost/freepdb1
+sql demouser@localhost/freepdb1
 
 [enter password when prompted]
 
-SQL> mle create-module -filename dist/bundle.js -module-name GRAPHQL_ENDPOINT_MODULE -version 250206
+SQL> mle create-module -filename dist/bundle.js -module-name GRAPHQL_ENDPOINT_MODULE -version 260723
 ```
 
 Once the module is present, expose the GraphQL query to SQL and PL/SQL as follows:
@@ -124,3 +128,5 @@ GRAPHQL_RESULT
   }
 }    
 ```
+
+That's it! Happy Querying.

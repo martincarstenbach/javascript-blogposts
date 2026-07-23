@@ -1,16 +1,15 @@
 {
 	"type": "module",
 	"devDependencies": {
-		"@biomejs/biome": "1.9.4",
-		"@rollup/plugin-commonjs": "^28.0.2",
-		"@rollup/plugin-node-resolve": "^16.0.0",
-		"oracledb": "^6.7.1",
-		"rollup": "^4.34.4"
+		"@biomejs/biome": "2.5.5",
+		"@rollup/plugin-commonjs": "^29.0.3",
+		"@rollup/plugin-node-resolve": "^16.0.3",
+		"oracledb": "^7.0.1",
+		"rollup": "^4.62.2"
 	},
 	"dependencies": {
-		"@graphql-tools/schema": "^10.0.16",
-		"chai": "^5.1.2",
-		"dotenv": "^16.4.7",
-		"mocha": "^11.1.0"
+		"@graphql-tools/schema": "^10.0.38",
+		"dotenv": "^17.4.2",
+		"vitest": "^4.1.10"
 	}
 }
