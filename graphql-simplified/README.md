@@ -2,7 +2,8 @@
 
 This folder contains the code necessary to run GraphQL queries from within an [Oracle Database Free](https://www.oracle.com/database/free/) instance. It extends an earlier example, this time however it uses the _GraphQL Reference implementation_ to perform GraphQL queries. Please refer to the [blog post](https://martincarstenbach.com/2024/06/06/creating-a-graphql-endpoint-within-the-database-redux/) for further details.
 
-Note that you quite a few things changed in the meantime: GraphQL support has been added to Oracle AI Database 26ai, you don't need to use this code. More details [can be found in the documentation](https://docs.oracle.com/en/database/oracle/oracle-database/26/gphql/oracle-ai-database-support-graphql.html)
+> [!IMPORTANT]
+> Quite a few things changed in the meantime: GraphQL support has been added to Oracle AI Database 26ai, you don't need to use this code. More details [can be found in the documentation](https://docs.oracle.com/en/database/oracle/oracle-database/26/gphql/oracle-ai-database-support-graphql.html)
 
 ## Versions Used
 
