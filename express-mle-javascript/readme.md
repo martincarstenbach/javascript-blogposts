@@ -1,154 +1,96 @@
-# express-mle-javascript
+# Express, MLE, and JavaScript
 
-Example how to use node-[express](https://expressjs.com/) with MLE/JavaScript.
+A quick&dirty example how to use node-[express](https://expressjs.com/) with Oracle's MLE/JavaScript.
 
-**NOTE** you are probably better off using Oracle REST Data Services ([ORDS](https://www.oracle.com/ords)) instead of express. ORDS provides a lot more than express out of the box including, but not limited to, authorisation and authentication.
+> [!TIP]
+> you are probably better off using Oracle REST Data Services ([ORDS](https://www.oracle.com/ords)) instead of express. ORDS provides a lot more than express out of the box including, but not limited to, authorisation and authentication.
 
 ## Database Setup and Configuration
 
-You require an Oracle Database (Free) instance. The easiest way to create one is to use a container image. This example features [Gerald Venzl's image](https://hub.docker.com/r/gvenzl/oracle-free) Make sure not to use the `-slim` image flavours, these don't come with Multilingual Engine/MLE.
-
-Here's an example compose file you can use as the starting point.
-
->The instructions in the readme refer to rootless `podman`/`podman-compose`, adapt as necessary for other container runtimes like Docker. You may also want to bump the version as newer releases become available.
-
-```yaml
-# THIS IS NOT A PRODUCTION SETUP - LAB USE ONLY!
-services:
-    oracle:
-        image: docker.io/gvenzl/oracle-free:23.6
-        ports:
-            - 1521:1521
-        environment:
-            - ORACLE_PASSWORD_FILE=/run/secrets/oracle-passwd
-        volumes:
-            - oradata-vol:/opt/oracle/oradata
-        networks:
-            - backend
-        healthcheck:
-            test: [ "CMD", "healthcheck.sh" ]
-            interval: 10s
-            timeout: 5s
-            retries: 10
-            start_period: 5s
-        secrets:
-            - oracle-passwd
-
-volumes:
-    oradata-vol:
-
-networks:
-    backend:
-
-secrets:
-    oracle-passwd:
-        external: true
-```
-
-The file worked brilliantly with `podman-compose 1.0.6-1` and `podman 4.9.3`. Make sure you defined a podman secret named `oracle-passwd` before bringing the database up.
+You require an Oracle Database (Free) instance; the easiest way to create one is to use a container image. Feel free to use the [podman](../database/compose-podman-db.yml) or [docker](../database/compose-docker-db.yml) compose file, which is [super easy to use](../database/README.md).
 
 ### Application User
 
-Once the database is up and running (visible in the output of `podman logs <container>`) you need to set up an application user as follows in `FREEPDB1`.
-
-The easiest way to do that is via [SQLcl](https://www.oracle.com/database/sqldeveloper/technologies/sqlcl/). Either install it locally or use the [official image](https://container-registry.oracle.com/ords/ocr/ba/database/sqlcl). The latter is preferable if you don't want to deal with SQLcl's dependencies such as the Java Runtime.
-
-1. **Get required connection information**
-
-    Before starting you need to know
-
-    - the name of the database container to connect to
-    - the network it used
-
-    Use the following snippet to get the container name
-    ```sh
-    $ podman ps --format "{{.Image}} --> use {{.Names}}"
-    docker.io/gvenzl/oracle-free:23.6 --> use dbfree_oracle_1
-    ```
-
-    Similarly, use `podman network ls` to get the network. Let's assume the network name is `dbfree_backend`.
+Once the database is up and running, you need to set up an application user as follows in `FREEPDB1`. That is, unless you used the compose file as suggested earlier, in which case you don't need to complete this step because an application user is created for you as soon as the container starts. Please skip that entire section.
 
 1. **Start SQLcl**
 
-    Don't forget to update the network name!
+    [SQLcl](https://www.oracle.com/database/sqldeveloper/technologies/sqlcl/) is required for the deployment of the seed data and code, so let's use it for the user creation as well. Ignore this section if you used Gerald Venzl's container image and the aforementioned compose file. If you didn't, adjust as necessary for your environment.
 
-    ```sh
-    cd express-mle-javascript/src/
+    ```
+    sql system@localhost/freepdb1
 
-    podman run -it --rm \
-    --volume ./database/:/opt/oracle/sql_scripts:Z \
-    --network ${compose_network:-"dbfree_backend"} \
-    container-registry.oracle.com/database/sqlcl:latest /nolog
+    SQLcl: Release 26.2 Production on Thu Jul 23 15:15:57 2026
+
+    Copyright (c) 1982, 2026, Oracle.  All rights reserved.
+
+    Password? (**********?) ***************
+    Last Successful login time: Thu Jul 23 2026 15:16:04 +02:00
+
+    Connected to:
+    Oracle AI Database 26ai Free Release 23.26.2.0.0 - Develop, Learn, and Run for Free
+    Version 23.26.2.0.0
+
+    SQL> 
     ```
 
-    This will launch SQLcl.
+    You are connected as SYSTEM, so please remember: with great power comes great responsibility.
 
-1. **Connect to the SYSTEM account using the container name you worked out earlier**
+1. **Create the application user**
 
-    If you created the database using the compose file shown above, the following command will work without a change.
-
-    ```sql
-    connect system@dbfree_oracle_1/freepdb1
-    ```
-
-1. **Switch to the default Pluggable Database and create the user**
-
-    Using the container image for Oracle Database Free you get a default Pluggable Database ready for use. It's name is `FREEPDB1`. Please update the password :)
+    Using the container image for Oracle Database Free you get a default Pluggable Database ready for use. It's name is `FREEPDB1`
 
     ```sql
-    alter session set container = FREEPDB1;
+    show con_name
+    -- must be "FREEPDB1"
 
-    create user app_user identified by "someSecretPasswordOfYourLiking"
+    create user demouser identified by "someSecretPasswordOfYourLiking"
     default tablespace users
     quota 1g on users;
 
     -- these are required for MLE/JavaScript
-    grant execute on javascript to app_user;
-    grant execute dynamic MLE to app_user;
-    grant db_developer_role to app_user;
-    grant soda_app to app_user;
+    grant execute dynamic MLE to demouser;
+    grant db_developer_role to demouser;
+    grant soda_app to demouser;
 
-    alter user app_user default role all;
+    alter user demouser default role all;
     ```
 
-This concludes the database setup.
+This concludes the user setup.
 
 ### Code deployment
 
-Connect as the newly created user and run the `deploy.sql` script:
+Connect as the newly created user and run the `deploy.sql` script.
 
-```
-connect app_user@dbfree_oracle_1/freepdb1
+```sql
+connect demouser@localhost/freepdb1
+cd express-mle-javascript/src/database
 start deploy.sql
 ```
 
-You should see the deployment on your screen:
-
-```
-SQL> start deploy
-MLE Module demo_module created
-
-Table DEMO_TABLE created.
-
-
-Procedure PROCESS_DATA compiled
-
-
-Function GET_DB_DETAILS compiled
-
-
-Function GET_MESSAGE_BY_ID compiled
-```
+This deploys the necessary table, and MLE/JavaScript code required for the express application.
 
 ## Start the application
 
-Open a new terminal and start the express application as follows:
+1. **Provide required environment variables**
 
-```sh
-cd ./express-mle-javascript
-npm i
-npm run dev
-```
+    Access to the database is governed by 3 environment parameters:
+
+    - DB_USERNAME
+    - DB_PASSWORD
+    - DB_CONN_STRING
+
+    Export these in your session.
+
+1. **Start the application**
+
+    Use the same terminal to start the express application as follows:
+
+    ```sh
+    cd ./express-mle-javascript
+    npm install
+    npm run dev
+    ```
 
 ## Have fun!
 
@@ -187,13 +129,13 @@ lastMessage=$(curl --silent http://localhost:3000/api/messages | jq 'map(.ID) | 
 curl --request DELETE --silent http://localhost:3000/api/messages/${lastMessage:-1}
 ```
 
-To test if these operations are available, you can run the unit test suite:
+To test if these operations are available, you can run the unit test suite. Remember that environment variables for username, password, and connection string are required.
 
-```
+```sh
 npm run test
 
 > test
-> npx mocha ./test
+> npm run test
 
   All Unit Tests
     Session Info tests
@@ -215,3 +157,5 @@ npm run test
 
   10 passing (304ms)
 ```
+
+Happy testing!
