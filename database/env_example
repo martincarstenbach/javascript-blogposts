@@ -1,2 +1,3 @@
-ORACLE_PASSWORD=enter your DBA password here
+ORACLE_PASSWORD=enter your Oracle DBA (SYS/SYSTEM) password here
 APP_USER_PASSWORD=enter the application user's password
+ORACLE_USER_PWD=Required for a new ORDS installation. By default, it is used for the ORDS administrative and runtime accounts.
