@@ -2,7 +2,7 @@
 services:
     oracle:
 
-        image: docker.io/gvenzl/oracle-free:23.26.2
+        image: docker.io/gvenzl/oracle-free:23.26.3
         ports:
             - 1521:1521
         environment:
@@ -26,12 +26,13 @@ services:
         depends_on:
             oracle:
                 condition: service_healthy
-        image: container-registry.oracle.com/database/ords:26.2.1
+        image: container-registry.oracle.com/database/ords:26.3.0
         environment:
             DBHOST: oracle
             DBPORT: 1521
             DBSERVICENAME: freepdb1
             ORACLE_PWD: ${ORACLE_PASSWORD:?Please provide a password for the Oracle DBA accounts}
+            ORACLE_USER_PWD: ${ORACLE_USER_PWD:?Please provide a password for the ORDS administrative and runtime accounts}
             DEBUG: FALSE
         networks:
             - backend
@@ -41,11 +42,8 @@ services:
             - 27017:27017
         volumes:
             - ords-config-vol:/etc/ords/config
-            # use this volume mount for the initial APEX installation
+            # use this volume mount for the initial APEX installation. There is no need to remove the mount after APEX is installed
             # - ./apex:/opt/oracle/apex:Z
-            # once installed, uncomment the line above and remove the comment from the line below
-            # or else you might get runtime errors when patching APEX
-            # - ./apex/images:/opt/oracle/apex/images:Z
         healthcheck:
             test: curl --noproxy "localhost" -f -k http://localhost:8080/ords/ || exit 1
             interval: 30s
