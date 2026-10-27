@@ -38,6 +38,7 @@ jobs:
         env:
             ORACLE_PASSWORD: ci-only-db-password
             APP_USER_PASSWORD: ci-only-app-user-password
+            ORACLE_USER_PWD: ci-only-oracle-user-pwd
             # Force `podman compose` to use the provider installed below rather
             # than selecting another Compose implementation from the runner.
             PODMAN_COMPOSE_PROVIDER: podman-compose
