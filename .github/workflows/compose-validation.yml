@@ -13,7 +13,7 @@ jobs:
         # startup, health checks, diagnostics, and cleanup must therefore all
         # happen in this job; containers cannot be shared between jobs.
         name: ${{ matrix.runtime }} - ${{ matrix.file }}
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         timeout-minutes: 10
         defaults:
             # podman-compose does not support Docker Compose's
